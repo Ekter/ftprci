@@ -1,6 +1,6 @@
 import interface
 import actuators
-import estimators
+import estimator
 import controller
-import sensors
+import sensor
 import logger

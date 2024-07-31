@@ -9,15 +9,22 @@ They can be either USB, I2C, physical output for compatible systems, or any othe
 
 import time
 import abc
-import col
-
+import pretlog as pl
 
 class Interface(abc.ABC):
     """
     Abstract base class for interfaces.
 
     This class defines the interface that should be implemented by all interfaces.
+    The interface behaves like a master device, sending commands and reading data
+    from the physical system, but it can also be used as a slave via polling.
+
+    Abstract methods:
+        * send_command
+        * read
+        * ping
     """
+
     @abc.abstractmethod
     def send_command(self, command):
         """
@@ -56,11 +63,14 @@ class DummyInterface:
 
     This interface will only send commands to the terminal.
 
-    Over
+    Overloaded abstract methods:
+        * send_command
+        * read
+        * ping
     """
     def __init__(self, timeout=1, no_warn=False) -> None:
         if not no_warn:
-            col.warn(
+            pl.warn(
                 """ Warning! This interface will only send commands to the terminal.
                 \n  It is not connected to any physical system.
                 \n  Use a derived class to connect to a physical system, like
@@ -87,7 +97,7 @@ class DummyInterface:
         self.send_command("ping")
         if self.read() == self.ping_answer:
             return time.time()-t
-        col.warn("Malformed ping response.")
+        pl.warn("Malformed ping response.")
         return time.time()-t
 
     def read(self, max_bytes = 1024):
@@ -109,4 +119,5 @@ if __name__=="__main__":
     dummy = DummyInterface()
     dummy.send_command("test")
     while True:
-        col.default(f"ping:{dummy.ping()}")
+        time.sleep(2)
+        pl.default(f"ping:{dummy.ping()}")

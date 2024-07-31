@@ -9,17 +9,20 @@ separate instances is recommended for complicated systems.
 Imported by main, member of the robot class.
 """
 
+import abc
+import interface
 
+class Actuator(abc.ABC):
+    def __init__(self, interface_command: interface.Interface):
+        self.interface: interface.Interface = interface_command
 
-class Actuator(BaseActuator):
-    def __init__(self):
-        pass
+    @abc.abstractmethod
+    def command(self, *args):
+        for comm in args:
+            self.interface.send_command(comm)
 
-    def command(self):
-        pass
-
-    def stop():
-        pass
+    def stop(self):
+        self.command(0)
 
     def __str__(self):
-        return "Actuator"
+        return self.__class__.__name__
