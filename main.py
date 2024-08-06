@@ -17,7 +17,7 @@ class Robot:
         self.actuators: list[Actuator] = []
         self.sensors = []
 
-    def set_actuators():
+    def set_actuators(self):
         pass
 
 
@@ -71,7 +71,7 @@ class RunnerThread:
         print(len(self.callback))
         a = self.initial_args
         for call in self.callback:
-            a = [(call_(*a) for call_ in call) if isinstance(call, tuple) else call(*a)]
+            a = [call_(*a) for call_ in call] if isinstance(call, tuple) else [call(*a)]
 
 
 th = RunnerThread(-1)
@@ -108,8 +108,9 @@ def f5(k):
     print(5)
     return k * 5
 
+
 def f52(k):
-    print("52")
+    print(52)
     return k * 10
 
 
