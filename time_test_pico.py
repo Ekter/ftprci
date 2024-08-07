@@ -1,5 +1,6 @@
 import time
-
+import machine
+machine.freq(240000000)
 N = 1000
 print(f"{N=}")
 
@@ -1028,7 +1029,7 @@ l = []
 
 
 for i in range(N):
-    l.append(time.ticks_us()-(time.ticks_us() if time.sleep_us(0) else time.ticks_us()))
+    l.append(time.ticks_us()-(time.ticks_us() if time.ticks_diff(1,0) else time.ticks_us()))
 
 print("4: (with sleep_us(1))",sum(l)/N)
 

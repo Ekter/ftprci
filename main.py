@@ -1,15 +1,28 @@
 import platform
-import time
-from typing import Union, Callable
+import sys
 
 from actuators import Actuator
 
 if platform.platform().startswith("MicroPython"):
     PLATFORM = "MicroPython"
     import _thread as threading
+    try:
+        import time
+        def sleep(t):
+            time.sleep_us(int(t * 1e6))
+    except (ImportError, AttributeError):
+
+
+
+
+
 else:
     PLATFORM = platform.python_implementation()
     import threading
+    from typing import Callable
+
+    assert sys.version_info >= (3, 11), "Python 3.11 or later is required on CPython"
+    sleep = time.sleep
 
 
 class Robot:
@@ -27,7 +40,7 @@ class RunnerThread:
             self.th = _th
             self.calling_queue = []
 
-        def __or__(self, fn: Union[tuple[Callable], Callable]):
+        def __or__(self, fn: tuple[Callable]| Callable):
             self.calling_queue.append((fn))
             return self
 
@@ -46,7 +59,7 @@ class RunnerThread:
         def __len__(self):
             return len(self.calling_queue)
 
-        def __sub__(self, fn: Union[int, tuple[Callable], Callable]):
+        def __sub__(self, fn: int | tuple[Callable] | Callable):
             if isinstance(fn, int):
                 self.calling_queue = self.calling_queue[:-fn]
                 return self
@@ -57,15 +70,15 @@ class RunnerThread:
             self.th.initial_args = args
             return self
 
-    def __init__(self, period: float = -1):
+    def __init__(self, frequency_hz: float = 0):
         self.initial_args = []
         self.callback = RunnerThread.CallQueue(self)
+        self.period_us = 1 / frequency_hz * 1e6
         if PLATFORM == "MicroPython":
             self.thread = threading.start_new_thread(self._run, ())
         else:
             self.thread = threading.Thread(target=self._run)
             self.thread.start()
-        self.period = period
 
     def _run(self):
         print(len(self.callback))
@@ -74,54 +87,50 @@ class RunnerThread:
             a = [call_(*a) for call_ in call] if isinstance(call, tuple) else [call(*a)]
 
 
-th = RunnerThread(-1)
+def _main():
+    th = RunnerThread(-1)
+
+    def f1():
+        print(1)
+        return 2
+
+    def f2(u):
+        print(2)
+        print(2 * u)
+        return 2 * u
+
+    def f3(k):
+        print(3)
+        print(k)
+
+    time.sleep(1)
+    th.callback | f1 | f2 | f2 | f3
+    print("----------")
+    th._run()
+
+    def f4(s):
+        print("4")
+        return s
+
+    def f5(k):
+        print(5)
+        return k * 5
+
+    def f52(k):
+        print(52)
+        return k * 10
+
+    def f6(*args):
+        print(6)
+        print(args)
+
+    time.sleep(1)
+    th.callback - 10
+    th.callback < "a"
+    th.callback | f4 | (f5, f52) | (lambda a, b: b) | f6
+    print("----------")
+    th._run()
 
 
-def f1():
-    print(1)
-    return 2
-
-
-def f2(u):
-    print(2)
-    print(2 * u)
-    return 2 * u
-
-
-def f3(k):
-    print(3)
-    print(k)
-
-
-time.sleep(1)
-th.callback | f1 | f2 | f2 | f3
-print("----------")
-th._run()
-
-
-def f4(s):
-    print("4")
-    return s
-
-
-def f5(k):
-    print(5)
-    return k * 5
-
-
-def f52(k):
-    print(52)
-    return k * 10
-
-
-def f6(*args):
-    print(6)
-    print(args)
-
-
-time.sleep(1)
-th.callback - 10
-th.callback < "a"
-th.callback | f4 | (f5, f52) | f6
-print("----------")
-th._run()
+if __name__ == "__main__":
+    _main()
