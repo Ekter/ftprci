@@ -1,11 +1,18 @@
 import _thread
 import platform
-import machine
-machine.freq(240000000)
 
 if platform.platform().startswith("MicroPython"):
     PLATFORM = "MicroPython"
     # only esp32 and rapsberry pi pico are supported for now
+
+    import os
+
+    import machine
+
+    if os.uname().sysname == "rp2":
+        # only for pico
+        machine.freq(240000000)  # full speed or nothing
+        # doubles the accuracy of the timer approximately
 
     import time
 
@@ -18,16 +25,17 @@ if platform.platform().startswith("MicroPython"):
     def ticks_diff(a, b):
         return time.ticks_diff(a, b)
 
-    sleep2 = lambda t:time.sleep_us(int(t*1e6))
+    # because better performance like this
+    # trunk-ignore(ruff/E731)
+    sleep2 = lambda t: time.sleep_us(int(t * 1e6))
 
     def sleep_perf(t):
         begin = time.ticks_cpu()
         if t > 1e-2:
             time.sleep(t - 1e-2)
-        end = begin+int(t * 1e6)
+        end = begin + int(t * 1e6)
         while time.ticks_cpu() < end:
             pass
-
 
     script_start_time = time.ticks_cpu()
     time.sleep(0.001)
@@ -36,11 +44,11 @@ if platform.platform().startswith("MicroPython"):
     print("[%.4f] time.sleep" % elapsed_time)
 
     script_start_time = time.ticks_cpu()
-    time.sleep_us(int(0.001*1e6))
+    time.sleep_us(int(0.001 * 1e6))
     time_now = time.ticks_cpu()
     elapsed_time = (time_now - script_start_time) / 1000
     print("[%.4f] time.sleep_us" % elapsed_time)
-    
+
     script_start_time = time.ticks_cpu()
     sleep(0.001)
     time_now = time.ticks_cpu()
@@ -59,8 +67,6 @@ if platform.platform().startswith("MicroPython"):
     elapsed_time = (time_now - script_start_time) / 1000
     print("[%.4f] sleep_perf" % elapsed_time)
 
-
-
     print("")
 
 else:
@@ -72,7 +78,7 @@ else:
         begin = time.perf_counter_ns()
         if t > 1e-2:
             time.sleep(t - 1e-2)
-        end = begin+int(t * 1e9)
+        end = begin + int(t * 1e9)
         while time.perf_counter_ns() < end:
             pass
 
@@ -82,19 +88,6 @@ else:
     def ticks_diff(a, b):
         return (b - a) % 1e10
 
-    script_start_time = time.perf_counter()
-    time.sleep(1)
-    time_now = time.perf_counter()
-    elapsed_time = (time_now - script_start_time) * 1000
-    print("[%.6f] time.sleep" % elapsed_time)
-
-    script_start_time = time.perf_counter()
-    sleep(1)
-    time_now = time.perf_counter()
-    elapsed_time = (time_now - script_start_time) * 1000
-    print("[%.6f] high_precision_sleep" % elapsed_time)
-    print("")
-
 
 class FastBlockingTimer:
     def __init__(
@@ -103,7 +96,6 @@ class FastBlockingTimer:
         frequency: float = -1,
         periodic: bool = None,
         callback: Callable = None,
-        
         *args,
         **kwargs,
     ) -> None:
@@ -123,6 +115,9 @@ class FastBlockingTimer:
         self.kwargs = kwargs
 
     def run(self):
+        """
+        Run the timer in current thread
+        """
         self.running = True
         loop = 1
         beg_loop = ticks_us()

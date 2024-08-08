@@ -11,6 +11,7 @@ if platform.platform().startswith("MicroPython"):
         def sleep(t):
             time.sleep_us(int(t * 1e6))
     except (ImportError, AttributeError):
+        pass
 
 
 
