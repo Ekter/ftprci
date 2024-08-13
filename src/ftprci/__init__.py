@@ -47,7 +47,6 @@ Here is an example of how to use the library:
     th.callback | sensor.read | estimator.estimate | controller.steer | actuator.command
     th.run()
 
-
 """
 
 
