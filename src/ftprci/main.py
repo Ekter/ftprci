@@ -1,30 +1,8 @@
-import platform
-import sys
+
 
 from actuators import Actuator
 
-if platform.platform().startswith("MicroPython"):
-    PLATFORM = "MicroPython"
-    import _thread as threading
-    try:
-        import time
-        def sleep(t):
-            time.sleep_us(int(t * 1e6))
-    except (ImportError, AttributeError):
-        pass
-
-
-
-
-
-else:
-    PLATFORM = platform.python_implementation()
-    import threading
-    from typing import Callable
-
-    assert sys.version_info >= (3, 11), "Python 3.11 or later is required on CPython"
-    sleep = time.sleep
-
+from low_level import sleep
 
 class Robot:
     def __init__(self) -> None:

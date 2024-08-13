@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "ftprci"
+version = "0.0.4"
+authors = [
+  { name="Ekter", email="ektermoi1@proton.me" },
+]
+description = "Cross platform fast time python robot interface controller"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: MicroPython",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Ekter/ftprci"
+Issues = "https://github.com/Ekter/ftprci/issues"
