@@ -1,7 +1,7 @@
 from interface import Interface, DummyInterface
 from actuators import Actuator
-import estimator
-import controller
-import sensor
+from estimator import Estimator
+from controller import Controller
+from sensor import Sensor
 import logger
 from  main import RunnerThread
