@@ -10,6 +10,7 @@ They can be either USB, I2C, physical output for compatible systems, or any othe
 import time
 import abc
 import pretlog as pl
+import smbus
 
 class Interface(abc.ABC):
     """
@@ -41,7 +42,7 @@ class Interface(abc.ABC):
 
         Parameters:
             * max_bytes: Maximum number of bytes to read. Default is 1024.
-        
+
         Returns:
             Data read from the interface.
         """
@@ -56,8 +57,40 @@ class Interface(abc.ABC):
         """
 
 
+class SMBusInterface(Interface):
+    """
+    Interface class for the SMBus protocol.
+    """
+    def __init__(self, slave_addr) -> None:
+        self.bus = smbus.SMBus(1)
+        self.sa = slave_addr
 
-class DummyInterface:
+    def send_command(self, *commands):
+        """
+        Send commands through the interface.
+
+        Parameters:
+            * command: Commands to send.
+        """
+        self.bus.write_byte(self.sa, *commands)
+
+    def read(self, address=0x22, max_bytes = 1024):
+        """
+        Read and return data from the interface.
+
+        Parameters:
+            * register: Register to read from. Default is 0x22.
+            * max_bytes: Maximum number of bytes to read. Default is 1024.
+
+        Returns:
+            Data read from the interface.
+        """
+        return self.bus.read_i2c_block_data(self.sa, address, max_bytes)
+
+
+
+
+class DummyInterface(Interface):
     """
     Dummy interface intended for debugging and testing purposes.
 
