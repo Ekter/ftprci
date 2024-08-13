@@ -14,9 +14,9 @@ Works on CPython and MicroPython.
 
 To install the library, simply run:
 
-    ```bash
-    pip install ftprci
-    ```
+$ pip install ftprci
+
+in a virtual environment.
 
 ## Usage
 
@@ -37,23 +37,21 @@ with precise timings.
 
 Here is an example of how to use the library:
 
-    ```python
-    import ftprci as fci
-    sensor = fci.LSM6()
-    controller = fci.PIDController() # not implemented yet :)
-    estimator = fci.KalmanFilter()  # not implemented yet
-    actuator = fci.DCMotor()        # not implemented yet
-    th = fci.RunnerThread()
-    th.callback | sensor.read | estimator.estimate | controller.steer | actuator.command
-    th.run()
+>>> import ftprci as fci
+>>> sensor = fci.LSM6()
+>>> controller = fci.PIDController() # not implemented yet :)
+>>> estimator = fci.KalmanFilter()  # not implemented yet
+>>> actuator = fci.DCMotor()        # not implemented yet
+>>> th = fci.RunnerThread()
+>>> th.callback | sensor.read | estimator.estimate | controller.steer | actuator.command
+>>> th.run()
 
 """
 
-
-from interface import Interface, DummyInterface, SMBusInterface
-from actuators import Actuator
-from estimator import Estimator
-from controller import Controller
-from sensor import Sensor, LSM6
 import logger
-from  main import RunnerThread
+from actuators import Actuator
+from controller import Controller
+from estimator import Estimator
+from interface import DummyInterface, Interface, SMBusInterface
+from main import RunnerThread
+from sensor import LSM6, Sensor
