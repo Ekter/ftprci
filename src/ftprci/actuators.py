@@ -10,7 +10,10 @@ Imported by main, member of the robot class.
 """
 
 import abc
+import struct
+import enum
 import interface
+
 
 class Actuator(abc.ABC):
     def __init__(self, interface_command: interface.Interface):
@@ -26,3 +29,30 @@ class Actuator(abc.ABC):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+class PololuAstar(Actuator):
+    class Regs(enum.Enum):
+        LEDS = 0
+        MOTORS = 6
+        NOTES = 24
+
+    def __init__(self, interface_command: interface.SMBusInterface):
+        super().__init__(interface_command)
+
+    def leds(self, red, yellow, green):
+        self.interface.send_command(
+            *struct.pack("BBB", red, yellow, green), address=PololuAstar.Regs.LEDS
+        )
+
+    def play_notes(self, notes):
+        raise RuntimeError("Please not.")
+        self.interface.send_command(
+            "B14s", 1, notes.encode("ascii"), address=PololuAstar.Regs.NOTES
+        )
+
+    def motors(self, left, right):
+        self.interface.send_command(
+            *struct.pack("hh", left, right), address=PololuAstar.Regs.MOTORS
+        )
+

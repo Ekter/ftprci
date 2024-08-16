@@ -27,7 +27,7 @@ class Interface(abc.ABC):
     """
 
     @abc.abstractmethod
-    def send_command(self, command):
+    def send_command(self, *command, address=0):
         """
         Send a command through the interface.
 
@@ -36,7 +36,7 @@ class Interface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def read(self, max_bytes = 1024):
+    def read(self, *, address=0, max_bytes = 1024):
         """
         Read and return data from the interface.
 
@@ -65,16 +65,16 @@ class SMBusInterface(Interface):
         self.bus = smbus.SMBus(1)
         self.sa = slave_addr
 
-    def send_command(self, *commands):
+    def send_command(self, *commands, address=0):
         """
         Send commands through the interface.
 
         Parameters:
             * command: Commands to send.
         """
-        self.bus.write_byte(self.sa, *commands)
+        self.bus.write_byte(self.sa, address, *commands)
 
-    def read(self, address=0x22, max_bytes = 1024):
+    def read(self, *, address=0x22, max_bytes = 1024):
         """
         Read and return data from the interface.
 
@@ -86,8 +86,6 @@ class SMBusInterface(Interface):
             Data read from the interface.
         """
         return self.bus.read_i2c_block_data(self.sa, address, max_bytes)
-
-
 
 
 class DummyInterface(Interface):
@@ -133,7 +131,7 @@ class DummyInterface(Interface):
         pl.warn("Malformed ping response.")
         return time.time()-t
 
-    def read(self, max_bytes = 1024):
+    def read(self, *, max_bytes = 1024):
         """
         Read and return data from the interface.
 
