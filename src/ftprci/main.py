@@ -6,6 +6,11 @@ from .low_level import sleep
 
 import _thread
 
+try:
+    from typing import Callable
+except Exception:
+    print("micropython i guess")
+
 class Robot:
     def __init__(self) -> None:
         self.actuators: list[Actuator] = []
