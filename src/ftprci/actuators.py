@@ -37,23 +37,26 @@ class PololuAstar(Actuator):
         MOTORS = 6
         NOTES = 24
 
-    def __init__(self, interface_command: interface.SMBusInterface):
-        super().__init__(interface_command)
+        SLAVE_ADDRESS = 20
+
+    def __init__(self):
+        _interface = interface.SMBusInterface(PololuAstar.Regs.SLAVE_ADDRESS.value)
+        super().__init__(_interface)
 
     def leds(self, red, yellow, green):
         self.interface.send_command(
-            *struct.pack("BBB", red, yellow, green), address=PololuAstar.Regs.LEDS
+            *struct.pack("BBB", red, yellow, green), address=PololuAstar.Regs.LEDS.value
         )
 
     def play_notes(self, notes):
         raise RuntimeError("Please not.")
         self.interface.send_command(
-            "B14s", 1, notes.encode("ascii"), address=PololuAstar.Regs.NOTES
+            "B14s", 1, notes.encode("ascii"), address=PololuAstar.Regs.NOTES.value
         )
 
     def motors(self, left, right):
         self.interface.send_command(
-            *struct.pack("hh", left, right), address=PololuAstar.Regs.MOTORS
+            *struct.pack("hh", left, right), address=PololuAstar.Regs.MOTORS.value
         )
 
     def command(self, command):
