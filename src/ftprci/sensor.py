@@ -2,9 +2,9 @@ import abc
 import collections
 import struct
 import enum
-import interface
 import random
 import math
+from . import interface
 
 class Sensor(abc.ABC):
     """

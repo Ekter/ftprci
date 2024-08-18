@@ -1,8 +1,10 @@
 
 
-from actuators import Actuator
+from .actuators import Actuator
 
-from low_level import sleep
+from .low_level import sleep
+
+import _thread
 
 class Robot:
     def __init__(self) -> None:
@@ -82,7 +84,7 @@ def _main():
         print(3)
         print(k)
 
-    low_level.sleep(1)
+    sleep(1)
     th.callback | f1 | f2 | f2 | f3
     print("----------")
     th._run()
@@ -103,7 +105,7 @@ def _main():
         print(6)
         print(args)
 
-    low_level.sleep(1)
+    sleep(1)
     th.callback - 10
     th.callback < "a"
     th.callback | f4 | (f5, f52) | (lambda a, b: b) | f6

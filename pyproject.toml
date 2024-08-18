@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "ftprci"
-version = "0.2.4"
+version = "0.2.5"
 authors = [
   { name="Ekter", email="ektermoi1@proton.me" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
-dependencies = ["numpy"]
+dependencies = ["numpy", "snbus", "pretlog"]
 
 [project.urls]
 Homepage = "https://github.com/Ekter/ftprci"

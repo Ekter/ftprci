@@ -12,7 +12,7 @@ Imported by main, member of the robot class.
 import abc
 import struct
 import enum
-import interface
+from . import interface
 
 
 class Actuator(abc.ABC):

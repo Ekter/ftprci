@@ -1,5 +1,5 @@
 import abc
-import sensor
+from . import sensor
 import numpy as np
 
 class Estimator(abc.ABC):
