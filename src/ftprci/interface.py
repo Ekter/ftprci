@@ -65,13 +65,16 @@ class SMBusInterface(Interface):
         self.bus = smbus.SMBus(1)
         self.sa = slave_addr
 
-    def send_command(self, *commands, address=0, data:bool = False):
+    def send_command(self, *commands, address=0, data:bool = False, block: bool = False):
         """
         Send commands through the interface.
 
         Parameters:
             * command: Commands to send.
         """
+        if block:
+            self.bus.write_i2c_block_data(self.sa, address, commands)
+            return
         if not data:
             self.bus.write_byte(self.sa, address, *commands)
         else:

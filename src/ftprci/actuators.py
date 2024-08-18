@@ -45,19 +45,27 @@ class PololuAstar(Actuator):
 
     def leds(self, red, yellow, green):
         self.interface.send_command(
-            *struct.pack("BBB", red, yellow, green), address=PololuAstar.Regs.LEDS.value
+            *struct.pack("BBB", red, yellow, green),
+            address=PololuAstar.Regs.LEDS.value,
+            block=True,
         )
 
     def play_notes(self, notes):
         raise RuntimeError("Please not.")
         self.interface.send_command(
-            "B14s", 1, notes.encode("ascii"), address=PololuAstar.Regs.NOTES.value
+            "B14s",
+            1,
+            notes.encode("ascii"),
+            address=PololuAstar.Regs.NOTES.value,
+            block=True,
         )
 
     def motors(self, left, right):
         self.interface.send_command(
-            *struct.pack("hh", left, right), address=PololuAstar.Regs.MOTORS.value
+            *struct.pack("hh", left, right),
+            address=PololuAstar.Regs.MOTORS.value,
+            block=True,
         )
 
     def command(self, command):
-        self.motors(command, command)
+        self.motors(int(command * 80), int(command * 80))

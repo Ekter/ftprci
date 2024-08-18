@@ -32,7 +32,7 @@ class Estimator(abc.ABC):
         return #ruff-B027
 
     def __call__(self, data):
-        self.estimate(data)
+        return self.estimate(data)
 
 
 class LowPassFilter(Estimator):

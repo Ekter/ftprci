@@ -1,2 +1,3 @@
-# pretlog
+pretlog
 numpy
+smbus
