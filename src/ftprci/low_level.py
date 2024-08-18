@@ -92,11 +92,11 @@ else:
 class FastBlockingTimer:
     def __init__(
         self,
+        *args,
         period: float = -1,
         frequency: float = -1,
         periodic: bool = None,
         callback: Callable = None,
-        *args,
         **kwargs,
     ) -> None:
         self.running = False

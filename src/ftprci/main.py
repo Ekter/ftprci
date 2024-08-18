@@ -1,8 +1,6 @@
-
-
 from .actuators import Actuator
 
-from .low_level import sleep
+from .low_level import sleep, FastBlockingTimer
 
 import _thread
 
@@ -10,6 +8,7 @@ try:
     from typing import Callable
 except Exception:
     print("micropython i guess")
+
 
 class Robot:
     def __init__(self) -> None:
@@ -26,7 +25,7 @@ class RunnerThread:
             self.th = _th
             self.calling_queue = []
 
-        def __or__(self, fn: tuple[Callable]| Callable):
+        def __or__(self, fn: tuple[Callable] | Callable):
             self.calling_queue.append((fn))
             return self
 
@@ -56,18 +55,19 @@ class RunnerThread:
             self.th.initial_args = args
             return self
 
-    def __init__(self, frequency_hz: float = 0):
+    def __init__(
+        self,
+        period: float = -1,
+        frequency: float = -1,
+        periodic: bool = None,
+    ):
         self.initial_args = []
         self.callback = RunnerThread.CallQueue(self)
-        self.period_us = 1 / frequency_hz * 1e6
-        if PLATFORM == "MicroPython":
-            self.thread = _thread.start_new_thread(self._run, ())
-        else:
-            self.thread = threading.Thread(target=self._run)
-            self.thread.start()
+        self.timer = FastBlockingTimer(period=period, frequency=frequency, periodic=periodic, callback=self._run)
+        self.thread = _thread.start_new_thread(self.timer.run, ())
 
     def _run(self):
-        print(len(self.callback))
+        # print(len(self.callback))
         a = self.initial_args
         for call in self.callback:
             a = [call_(*a) for call_ in call] if isinstance(call, tuple) else [call(*a)]
