@@ -20,8 +20,8 @@ class Actuator(abc.ABC):
         self.interface: interface.Interface = interface_command
 
     @abc.abstractmethod
-    def command(self, *args):
-        for comm in args:
+    def command(self, *command):
+        for comm in command:
             self.interface.send_command(comm)
 
     def stop(self):
@@ -56,3 +56,5 @@ class PololuAstar(Actuator):
             *struct.pack("hh", left, right), address=PololuAstar.Regs.MOTORS
         )
 
+    def command(self, command):
+        self.motors(command, command)
