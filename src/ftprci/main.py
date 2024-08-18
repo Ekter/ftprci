@@ -54,7 +54,7 @@ class RunnerThread:
         self.callback = RunnerThread.CallQueue(self)
         self.period_us = 1 / frequency_hz * 1e6
         if PLATFORM == "MicroPython":
-            self.thread = threading.start_new_thread(self._run, ())
+            self.thread = _thread.start_new_thread(self._run, ())
         else:
             self.thread = threading.Thread(target=self._run)
             self.thread.start()
@@ -82,7 +82,7 @@ def _main():
         print(3)
         print(k)
 
-    time.sleep(1)
+    low_level.sleep(1)
     th.callback | f1 | f2 | f2 | f3
     print("----------")
     th._run()
@@ -103,7 +103,7 @@ def _main():
         print(6)
         print(args)
 
-    time.sleep(1)
+    low_level.sleep(1)
     th.callback - 10
     th.callback < "a"
     th.callback | f4 | (f5, f52) | (lambda a, b: b) | f6

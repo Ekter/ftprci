@@ -3,6 +3,8 @@ import collections
 import struct
 import enum
 import interface
+import random
+import math
 
 class Sensor(abc.ABC):
     """
@@ -56,6 +58,12 @@ class Sensor(abc.ABC):
         The __init__ method should be overloaded if an initialization is needed.
         """
         return #ruff-B027
+
+    def __call__(self, *args):
+        self.read(*args)
+
+    def __or__(self, other):
+        return self, other
 
 
 class Accelerometer(Sensor):
@@ -138,3 +146,16 @@ class LSM6(AccGyro):
         acc = self.interface.read(address=LSM6.Regs.OUTX_L_XL, max_bytes=6)
 
         return LSM6.RawData(*struct.unpack('hhh', bytes(acc)), *struct.unpack('hhh', bytes(gyro)))
+
+
+class DummyAccGyro(AccGyro):
+    """
+    Random values and a sine for acc
+    """
+    def __init__(self):
+        super().__init__()
+        self.t = 1
+
+    def read(self):
+        self.t+=1
+        return AccGyro.RawData(acc=(random.random()-0.5, 7+math.cos(self.t/100)+random.random()*0.1-0.05, 4*math.sin(self.t/100)+random.random()*0.1-0.05), gyro=(6+random.random()*0.01-0.005, random.random()*0.01-0.005, 2+random.random()*0.01-0.005))

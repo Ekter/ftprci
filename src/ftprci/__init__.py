@@ -49,9 +49,9 @@ Here is an example of how to use the library:
 """
 
 import logger
-from actuators import Actuator
-from controller import Controller
-from estimator import Estimator
+from actuators import Actuator, PololuAstar
+from controller import Controller, PIDController, LQRController, DiscreteDifferential, DiscreteIntegral,
+from estimator import Estimator, LowPassFilter, HighPassFilter, ComplementaryFilter
 from interface import DummyInterface, Interface, SMBusInterface
 from main import RunnerThread
-from sensor import LSM6, Sensor
+from sensor import LSM6, Sensor, DummyAccGyro
