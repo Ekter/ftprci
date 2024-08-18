@@ -50,7 +50,7 @@ Here is an example of how to use the library:
 
 import logger
 from actuators import Actuator, PololuAstar
-from controller import Controller, PIDController, LQRController, DiscreteDifferential, DiscreteIntegral,
+from controller import Controller, PIDController, LQRController, DiscreteDifferential, DiscreteIntegral
 from estimator import Estimator, LowPassFilter, HighPassFilter, ComplementaryFilter
 from interface import DummyInterface, Interface, SMBusInterface
 from main import RunnerThread
