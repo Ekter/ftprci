@@ -47,7 +47,6 @@ class Interface(abc.ABC):
             Data read from the interface.
         """
 
-    @abc.abstractmethod
     def ping(self) -> float:
         """
         Ping through the interface and return the time it took to get a response.
@@ -55,6 +54,7 @@ class Interface(abc.ABC):
         Returns:
             Time in seconds it took to get a response.
         """
+        return
 
 
 class SMBusInterface(Interface):
