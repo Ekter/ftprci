@@ -137,9 +137,9 @@ class LSM6(AccGyro):
         """
         super().__init__()
         self.interface = interface.SMBusInterface(slave_addr)
-        self.interface.send_command(LSM6.Regs.CTRL1_XL, 0x50) # 208 Hz ODR, 2 g FS
-        self.interface.send_command(LSM6.Regs.CTRL2_G, 0x58) # 208 Hz ODR, 1000 dps FS
-        self.interface.send_command(LSM6.Regs.CTRL3_C, 0x04) # auto increment address
+        self.interface.send_command(0x50, address=LSM6.Regs.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
+        self.interface.send_command(0x58, address=LSM6.Regs.CTRL2_G.value, data=True) # 208 Hz ODR, 1000 dps FS
+        self.interface.send_command(0x04, address=LSM6.Regs.CTRL3_C.value, data=True) # auto increment address
 
     def read(self):
         gyro = self.interface.read(address=LSM6.Regs.OUTX_L_G, max_bytes=6)

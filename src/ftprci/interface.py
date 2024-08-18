@@ -65,14 +65,17 @@ class SMBusInterface(Interface):
         self.bus = smbus.SMBus(1)
         self.sa = slave_addr
 
-    def send_command(self, *commands, address=0):
+    def send_command(self, *commands, address=0, data:bool = False):
         """
         Send commands through the interface.
 
         Parameters:
             * command: Commands to send.
         """
-        self.bus.write_byte(self.sa, address, *commands)
+        if not data:
+            self.bus.write_byte(self.sa, address, *commands)
+        else:
+            self.bus.write_byte_data(self.sa, address, *commands)
 
     def read(self, *, address=0x22, max_bytes = 1024):
         """

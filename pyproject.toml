@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "ftprci"
-version = "0.2.8"
+version = "0.2.9"
 authors = [
   { name="Ekter", email="ektermoi1@proton.me" },
 ]

@@ -1,8 +1,8 @@
 import abc
-import enum
+# import enum
 import numpy as np
 
-class DiscreteIntegral(enum.Enum):
+class DiscreteIntegral:
     class EulerF:
         """
         Discretize using Euler Forward method.
