@@ -35,18 +35,21 @@ class Estimator(abc.ABC):
         return self.estimate(data)
 
 
-class LowPassFilter(Estimator):
+class DiscreteLowPassFilter(Estimator):
     """
-    Low pass filter(just a mean over some measurements)
+    Discrete low pass filter.
+
+    Alpha = e^(-dt/wc)
     """
-    def __init__(self, buffer_size = 5, dimension = 1):
+    def __init__(self, alpha = 5, dimension = 1):
         super().__init__()
-        self.buffer = np.zeros((buffer_size, dimension))
+        self.alpha = alpha
+        self.y = np.zeros((1, dimension))
 
     def estimate(self, data):
-        self.buffer = np.roll(self.buffer, 1, axis=0)
-        self.buffer[-1] = data
-        return np.mean(self.buffer, axis=0)
+        self.y = self.y * self.alpha + data * (1 - self.alpha)
+        return self.y
+
 
 
 class HighPassFilter(Estimator):
@@ -72,7 +75,7 @@ class ComplementaryFilter(Estimator):
     """
     def __init__(self, buf_size = 5):
         super().__init__()
-        self.acc_low_pass = LowPassFilter(buffer_size=buf_size, dimension=3)
+        self.acc_low_pass = DiscreteLowPassFilter(buffer_size=buf_size, dimension=3)
         self.gyro_high_pass = HighPassFilter(buffer_size=buf_size, dimension=3)
 
     def estimate(self, data: sensor.AccGyro.RawData):

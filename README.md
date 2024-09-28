@@ -15,7 +15,7 @@ Works on CPython and MicroPython.
 
 To install the library, simply run:
 
-    ```bash
+    ```sh
     pip install ftprci
     ```
 
@@ -40,10 +40,14 @@ Here is an example of how to use the library:
 
     ```python
     import ftprci as fci
-    sensor = fci.LSM6()
-    controller = fci.PIDController()
-    estimator = fci.KalmanFilter()
-    actuator = fci.DCMotor()
+
     th = fci.RunnerThread()
+
+    sensor = fci.LSM6()
+    estimator = fci.KalmanFilter()
+    controller = fci.PIDController(1, 10, 0.1)
+    actuator = fci.DCMotor()
+
     th.callback | sensor.read | estimator.estimate | controller.steer | actuator.command
     th.run()
+    ```
