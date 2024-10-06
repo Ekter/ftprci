@@ -8,12 +8,12 @@ if not platform.platform().startswith("MicroPython"):
     import numpy as np
     from tqdm import tqdm
 
-    from low_level import sleep
+    from src.ftprci.low_level import sleep
 
     clock = lambda: time.perf_counter() * 1000
 else:
     MP = True
-    from low_level import sleep, sleep_perf
+    from src.ftprci.low_level import sleep, sleep_perf
 
     clock = lambda: time.ticks_us() / 1000
 

@@ -84,3 +84,5 @@ class ComplementaryFilter(Estimator):
         theta = np.acos(acc[1]/np.linalg.norm(acc))
 
         return theta, theta_dot
+
+
