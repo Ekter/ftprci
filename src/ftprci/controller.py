@@ -76,9 +76,6 @@ class DiscreteDifferential:
         return ret
 
 
-
-
-
 class Controller(abc.ABC):
     def __init__(self) -> None:
         self.order=0

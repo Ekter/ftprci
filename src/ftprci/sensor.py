@@ -1,3 +1,20 @@
+"""
+Sensor module.
+
+This module defines the abstract class `Sensor` and some concrete sensors.
+
+Public classes:
+    * `Sensor`: Abstract base class for sensors.
+    * `Accelerometer`: Sensor for acceleration.
+    * `Gyrometer`: Sensor for angular speed.
+    * `Encoder`: Sensor for rotations.
+    * `AccGyro`: Sensor for acceleration and angular speed.
+    * `LSM6`: Sensor for acceleration and angular speed.
+    * `DummyAccGyro`:
+        Sensor for acceleration and angular speed with somehow random but consistent values.
+"""
+
+
 import abc
 import collections
 import struct

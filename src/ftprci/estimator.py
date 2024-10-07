@@ -78,6 +78,42 @@ class ComplementaryFilter(Estimator):
     def estimate(self, data: sensor.AccGyro.RawData):
         acc = self.acc_low_pass(data.acc)
         theta_dot = self.gyro_high_pass(data.gyro)
-        theta = np.acos(acc[1]/np.linalg.norm(acc))
+        theta = np.acos(acc[0]/np.linalg.norm(acc))
 
         return theta, theta_dot
+
+
+class LinearKalmanFilter(Estimator):
+    def __init__(self, xhat_init, P_init, H, F, Q, R, G = None, Ts=None):
+        super().__init__()
+        if G is None:
+            self.G = np.zeros(1)
+        else:
+            self.G = G
+
+        self.I = np.eye(xhat_init.shape)
+        self.xhat_minus = xhat_init
+        self.xhat = np.zeros(xhat_init.shape)
+        self.P_minus = P_init
+        self.P = np.zeros(P_init.shape)
+        self.H = H
+        self.F = F
+        self.Q = Q
+        self.R = R
+        self.phi = np.eye(F.shape) + F*Ts + F*F*Ts*Ts/2
+
+    def estimate(self, data, u = None):
+        if u is None:
+            u=np.zeros(1)
+
+        K = self.P_minus @ self.H.T @ np.linalg.inv(self.H @ self.P_minus @ self.H.T + self.R)
+
+        self.xhat = self.xhat_minus + K @ (data - self.H @ self.xhat_minus)
+
+        self.xhat_minus = self.phi @ self.xhat + self.G @ u
+
+        self.P = (self.I-K @ self.H) @ self.P_minus
+
+        self.P_minus = self.phi @ self.P @ self.phi.T + self.Q
+
+        return self.xhat
