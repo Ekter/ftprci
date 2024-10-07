@@ -53,7 +53,7 @@ class DiscreteIntegral:
 
 
     class HighOrd:
-        def __init__(self, dt = 1/1000, initial_condition = 0, weights = [1/6, 1/3, 1/2]) -> None:
+        def __init__(self, dt = 1/1000, initial_condition = 0, weights = [1/6, 1/3, 1/2]) -> None: # todo remove mutable
             self.accumulator = initial_condition
             self.dt = dt
             self.weights = np.array(weights)

@@ -1,7 +1,7 @@
-
 # FTPRCI
 
 Fast Time Python Robot Controller Interface
+
 
 ## Description
 
@@ -15,7 +15,7 @@ Works on CPython and MicroPython.
 
 To install the library, simply run:
 
-    ```bash
+    ```sh
     pip install ftprci
     ```
 
@@ -32,7 +32,7 @@ all estimators.
 for all controllers.
 * `sensor`: Contains the `Sensor` class, which is an abstract base class for all
 sensors.
-* `logger`: Contains the `Logger` class, which is used for logging.
+* `logger`: Contains the `Logger` class, which is used for logging. # TODO
 * `main`: Contains the `RunnerThread` class, which is used to run the controller
 with precise timings.
 
@@ -40,10 +40,20 @@ Here is an example of how to use the library:
 
     ```python
     import ftprci as fci
-    sensor = fci.LSM6()
-    controller = fci.PIDController()
-    estimator = fci.KalmanFilter()
-    actuator = fci.DCMotor()
+
     th = fci.RunnerThread()
+
+    sensor = fci.LSM6()
+    estimator = fci.KalmanFilter()
+    controller = fci.PIDController(1, 10, 0.1)
+    actuator = fci.DCMotor()
+
     th.callback | sensor.read | estimator.estimate | controller.steer | actuator.command
     th.run()
+    ```
+
+
+## Contributing
+
+Do not hesitate to contribute to the project if you create a new sensor, estimator, or anything!
+You can open a pull request or an issue on the GitHub repository.

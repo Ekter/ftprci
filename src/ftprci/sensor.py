@@ -77,7 +77,7 @@ class Sensor(abc.ABC):
         return #ruff-B027
 
     def __call__(self, *args):
-        self.read(*args)
+        return self.read(*args)
 
     def __or__(self, other):
         return self, other

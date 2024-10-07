@@ -39,7 +39,7 @@ Here is an example of how to use the library:
 
 >>> import ftprci as fci
 >>> sensor = fci.LSM6()
->>> controller = fci.PIDController() # not implemented yet :)
+>>> controller = fci.PIDController()
 >>> estimator = fci.KalmanFilter()  # not implemented yet
 >>> actuator = fci.DCMotor()        # not implemented yet
 >>> th = fci.RunnerThread()
@@ -50,8 +50,18 @@ Here is an example of how to use the library:
 
 from .actuators import Actuator, PololuAstar
 from .controller import Controller, PIDController, LQRController, DiscreteDifferential, DiscreteIntegral
-from .estimator import Estimator, LowPassFilter, HighPassFilter, ComplementaryFilter
+from .estimator import Estimator, DiscreteLowPassFilter, HighPassFilter, ComplementaryFilter
 from .interface import DummyInterface, Interface, SMBusInterface
 from .main import RunnerThread
 from .sensor import LSM6, Sensor, DummyAccGyro
-# import .logger
+from .low_level import FastBlockingTimer, sleep
+from .logger import Logger, TimedLogger, DataComparativeLogger, PlotLogger
+
+from . import actuators
+from . import controller
+from . import estimator
+from . import interface
+from . import main
+from . import sensor
+from . import low_level
+from . import logger

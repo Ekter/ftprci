@@ -30,6 +30,9 @@ class Actuator(abc.ABC):
     def __str__(self):
         return self.__class__.__name__
 
+    def __call__(self, *command):
+        self.command(*command)
+
 
 class PololuAstar(Actuator):
     class Regs(enum.Enum):

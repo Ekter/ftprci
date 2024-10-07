@@ -54,7 +54,7 @@ class Interface(abc.ABC):
         Returns:
             Time in seconds it took to get a response.
         """
-        return
+        raise NotImplementedError("Please implement the ping method for your subclass.")
 
 
 class SMBusInterface(Interface):
