@@ -90,26 +90,31 @@ class LinearKalmanFilter(Estimator):
     def __init__(self, xhat_init, P_init, H, F, Q, R, G = None, Ts=None):
         super().__init__()
         if G is None:
-            self.G = np.zeros(1)
+            self.G = np.zeros(xhat_init.shape[0])
         else:
             self.G = G
 
-        self.I = np.eye(xhat_init.shape)
+        self.I = np.eye(xhat_init.shape[0])
         self.xhat_minus = xhat_init
-        self.xhat = np.zeros(xhat_init.shape)
+        self.xhat = np.zeros(xhat_init.shape[0])
         self.P_minus = P_init
-        self.P = np.zeros(P_init.shape)
+        self.P = np.zeros(P_init.shape[0])
         self.H = H
         self.F = F
         self.Q = Q
         self.R = R
-        self.phi = np.eye(F.shape) + F*Ts + F*F*Ts*Ts/2
+        self.phi = np.eye(F.shape[0]) + F*Ts + F*F*Ts*Ts/2
 
     def estimate(self, data, u = None):
         if u is None:
-            u=np.zeros(1)
+            u=np.zeros((self.xhat.shape[0], 1))
 
-        K = self.P_minus @ self.H.T @ np.linalg.inv(self.H @ self.P_minus @ self.H.T + self.R)
+        if self.R.shape[0] == 1:
+            K = self.P_minus @ self.H.T /(self.H @ self.P_minus @ self.H.T + self.R)
+
+        else:
+
+            K = self.P_minus @ self.H.T @ np.linalg.inv(self.H @ self.P_minus @ self.H.T + self.R)
 
         self.xhat = self.xhat_minus + K @ (data - self.H @ self.xhat_minus)
 
