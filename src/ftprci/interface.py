@@ -93,6 +93,11 @@ class SMBusInterface(Interface):
         """
         return self.bus.read_i2c_block_data(self.sa, address, max_bytes)
 
+# class I2CInterface(Interface):
+#     """
+#     Interface class for the I2C protocol
+#     """
+
 
 class DummyInterface(Interface):
     """
