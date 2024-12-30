@@ -70,7 +70,7 @@ class SMBusInterface(Interface):
         Send commands through the interface.
 
         Parameters:
-            * command: Commands to send.
+            * command : Commands to send.
         """
         if block:
             self.bus.write_i2c_block_data(self.sa, address, commands)

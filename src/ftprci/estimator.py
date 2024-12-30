@@ -51,6 +51,23 @@ class DiscreteLowPassFilter(Estimator):
         return self.y
 
 
+class DiscreteHighPassFilter(Estimator):
+    """
+    Discrete high pass filter.
+
+    Alpha = 1/(dt*wc+1)
+    """
+    def __init__(self, alpha = 5, dimension = 1):
+        super().__init__()
+        self.alpha = alpha
+        self.y = np.zeros((1, dimension))
+        self.prev_x = np.zeros((1, dimension))
+
+    def estimate(self, data):
+        self.y = self.y * self.alpha + self.alpha *(data-self.prev_x)
+        self.prev_x = data
+        return self.y
+
 
 class HighPassFilter(Estimator):
     """

@@ -219,7 +219,6 @@ class LSM9DS1(AccGyroMag):
         INT2_CTRL = 0x0D # 00001101 00000000 r/w            INT2_A/G pin control register
         WHO_AM_I = 0x0F # 00001111 01101000 r               Who_AM_I register
         CTRL_REG1_G = 0x10 # 00010000 00000000 r/w          Angular rate sensor Control Register 1
-        "ODR_G2 ODR_G1 ODR_G0 FS_G1 FS_G0 0 BW_G1 BW_G0"
         CTRL_REG2_G = 0x11 # 00010001 00000000 r/w          Angular rate sensor Control Register 2
         CTRL_REG3_G = 0x12 # 00010010 00000000 r/w          Angular rate sensor Control Register 3
         ORIENT_CFG_G = 0x13 # 00010011 00000000 r/w         Angular rate sensor sign and orientation register
@@ -259,7 +258,176 @@ class LSM9DS1(AccGyroMag):
         INT_GEN_THS_ZL_G = 0x36 # 00110110 00000000 r/w
         INT_GEN_DUR_G = 0x37 # 00110111 00000000 r/w        Angular rate sensor interrupt generator duration register
 
-    class WorkingFrequencies(enum.Enum):fgt
+
+        class CtrlReg1:
+            """
+            Control register number 3 for the accelerometer and gyroscope.
+
+            Used for enabling low power mode and for the configuration of the high pass filter.
+            """
+            class AccGyroOutputDataRate(enum.Enum):
+                POWER_DOWN = 0b000
+                F_14Hz9 = 0b001
+                F_59Hz5 = 0b010
+                F_119Hz = 0b011
+                F_238Hz = 0b100
+                F_476Hz = 0b101
+                F_952Hz = 0b110
+
+
+            class GyroFullScaleSelector(enum.Enum):
+                F_245dps = 0b00
+                F_500dps = 0b01
+                F_2000dps = 0b11
+
+
+            class GyroBandwidthSelector(enum.Enum):     # TODO
+                """
+                Use not understood, use BW_0, it should work
+                ODR_G [2:0] BW_G [1:0] ODR [Hz] Cutoff [Hz] (1)
+                1. Values in the table are indicative and can vary proportionally with the specific ODR value.
+                000 00 Power-down n.a.
+                000 01 Power-down n.a.
+                000 10 Power-down n.a.
+                000 11 Power-down n.a.
+                001 00 14.9 n.a.
+                001 01 14.9 n.a.
+                001 10 14.9 n.a.
+                001 11 14.9 n.a.
+                010 00 59.5 16
+                010 01 59.5 16
+                010 10 59.5 16
+                010 11 59.5 16
+                011 00 119 14
+                011 01 119 31
+                011 10 119 31
+                011 11 119 31
+                100 00 238 14
+                100 01 238 29
+                100 10 238 63
+                100 11 238 78
+                101 00 476 21
+                101 01 476 28
+                101 10 476 57
+                101 11 476 100
+                110 00 952 33
+                110 01 952 40
+                110 10 952 58
+                110 11 952 100
+                111 00 n.a. n.a.
+                111 01 n.a. n.a.
+                111 10 n.a. n.a.
+                111 11 n.a. n.a.
+                """
+                BW_0 = 0b00
+                BW_1 = 0b01
+                BW_2 = 0b10
+                BW_3 = 0b11
+
+            def __init__(self, odr: AccGyroOutputDataRate = AccGyroOutputDataRate.F_119Hz, fs: GyroFullScaleSelector = GyroFullScaleSelector.F_2000dps, bw: GyroBandwidthSelector = GyroBandwidthSelector.BW_0):
+                self.odr = odr
+                self.fs = fs
+                self.bw = bw
+
+            def __int__(self):
+                return (self.odr.value<<5) + (self.fs.value<<3)+self.bw.value
+
+
+        class CtrlReg2:
+            """
+            Control register number 3 for the accelerometer and gyroscope.
+
+            Used for enabling low power mode and for the configuration of the high pass filter.
+            """
+            def __init__(self, int_sel: int, out_sel: int): # TODO
+                self.int_sel = int_sel
+                self.out_sel = out_sel
+
+            def __int__(self):
+                return (self.int_sel<<2) + self.out_sel
+
+
+        class CtrlReg3:
+            """
+            Control register number 3 for the accelerometer and gyroscope.
+
+            Used for enabling low power mode and for the configuration of the high pass filter.
+            """
+            class AccGyroLowPowerMode(enum.Enum):
+                """
+                Power mode.
+                """
+                LP_MODE = 0b1
+                NORMAL_MODE = 0b0
+
+            class HighPassFilterConfig(enum.Enum):
+                """
+                If enabled, the cutoff frequency can be choosen as a function of the ODR.
+                Read table 52 of doc for more details.
+
+                The cutoff frequency can be computed approximately as cutoff = 1000 / dividing_value (DV)
+                """
+                NOT_ENABLED = 0b000_0000
+                DV_64 = 0b100_0000
+                DV_32 = 0b100_0001
+                DV_16 = 0b100_0010
+                DV_8 = 0b100_0011
+                DV_4 = 0b100_0100
+                DV_2 = 0b100_0101
+                DV_1 = 0b100_0110
+                DV_1_OVER_2 = 0b100_0111
+                DV_1_OVER_5 = 0b100_1000
+                DV_1_OVER_10 = 0b100_1001
+
+            def __init__(self, low_power: AccGyroLowPowerMode = AccGyroLowPowerMode.NORMAL_MODE, high_pass_filter: HighPassFilterConfig = HighPassFilterConfig.NOT_ENABLED):
+                self.low_power = low_power
+                self.high_pass_filter = high_pass_filter
+
+            def __int__(self):
+                return (self.low_power.value<<7) + self.high_pass_filter.value
+
+
+        class CtrlReg4:
+            """
+            Control register number 4 for the accelerometer and gyroscope.
+
+            Used for enabling each gyroscope axis output separately and to config a few params of the acc-only interrupts.
+            """
+            class GyroAxisOutput(enum.Enum):
+                """
+                Enable or disable the output of each gyro axis.
+                
+                Use bitwise or if necessary.
+                """
+                X_ENABLED = 0b001
+                Y_ENABLED = 0b010
+                Z_ENABLED = 0b100
+                ALL_ENABLED = 0b111
+
+            class AccLatchedInterrupt(enum.Enum):
+                """
+                Enable or disable latched interrupt for the accelerometer.
+                """
+                LATCHED = 0b1
+                NOT_LATCHED = 0b0
+
+            class AccInterruptPositionRecognitionMode(enum.Enum):
+                """
+                No idea what this means.
+                """
+                MODE_4D = 0b1
+                MODE_6D = 0b0
+            
+            def __init__(self, gyro_axis: GyroAxisOutput = GyroAxisOutput.ALL_ENABLED, acc_latched_interrupt: AccLatchedInterrupt = AccLatchedInterrupt.NOT_LATCHED, acc_interrupt_position_recognition: AccInterruptPositionRecognitionMode = AccInterruptPositionRecognitionMode.MODE_6D):
+                self.gyro_axis = gyro_axis
+                self.acc_latched_interrupt = acc_latched_interrupt
+                self.acc_interrupt_position_recognition = acc_interrupt_position_recognition
+
+            def __int__(self):
+                return (self.gyro_axis.value<<3)+(self.acc_latched_interrupt.value<<1)+self.acc_interrupt_position_recognition.value
+
+# TODO ORIENT_CFG_G and interrupt config registers
+
 
     def __init__(self, pin_SA0: int = 0):
         """
@@ -274,13 +442,13 @@ class LSM9DS1(AccGyroMag):
         self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
         self.full_settings()
 
-        self.interface.send_command(0x50, address=LSM9DS1.Regs.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
-        self.interface.send_command(0x58, address=LSM9DS1.Regs.CTRL2_G.value, data=0b0101_0101) # 208 Hz ODR, 1000 dps FS
-        self.interface.send_command(0x00, address=LSM9DS1.Regs.CTRL3_C.value, data=0b0101_0101) # auto increment address
-        self.interface.send_command(0x00, address=LSM9DS1.Regs.CTRL4_C.value, data=0b0101_0101) # auto increment address
-        self.interface.send_command(0x00, address=LSM9DS1.Regs.CTRL5_C.value, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
+        # self.interface.send_command(0x58, address=LSM9DS1.RegsAccGyro.CTRL2_G.value, data=0b0101_0101) # 208 Hz ODR, 1000 dps FS
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL3_C.value, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C.value, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C.value, data=0b0101_0101) # auto increment address
 
-    def full_settings(self, freq):
+    def full_settings(self, freq: AccGyroOutputDataRate = AccGyroOutputDataRate.F_119Hz, gyro_fs: GyroFullScaleSelector = GyroFullScaleSelector.F_2000dps, gyro_bw: GyroBandwidthSelector = GyroBandwidthSelector.BW_0):
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL)
@@ -288,7 +456,9 @@ class LSM9DS1(AccGyroMag):
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL)
-        self.accgyro_writer.send_command()
+        self.accgyro_writer.send_command((freq<<5)+(gyro_fs<<3)+gyro_bw, address=LSM9DS1.RegsAccGyro.CTRL_REG1_G)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL_REG2_G)
+        
         
 
 class DummyAccGyro(AccGyro):
