@@ -426,6 +426,47 @@ class LSM9DS1(AccGyroMag):
             def __int__(self):
                 return (self.gyro_axis.value<<3)+(self.acc_latched_interrupt.value<<1)+self.acc_interrupt_position_recognition.value
 
+
+        class CtrlReg5:
+            """
+            Control register number 4 for the accelerometer.
+
+            Used for enabling each accelerometer axis output separately and to change decimation.
+            """
+            class DecimationRatio(enum.Enum):
+                """
+                Change the decimation (update rate, for fifo for example)
+                
+                A ratio of one (no decimation) means the buffer is updated after every measure.
+                A ratio of two means the buffer is updated after every two measures.
+                """
+
+                ONE = 0b00
+                TWO = 0b01
+                FOUR = 0b10
+                EIGHT = 0b11
+
+            class AccAxisOutput(enum.Enum):
+                """
+                Enable or disable the output of each accelerometer axis.
+                
+                Use bitwise or if necessary.
+                """
+                X_ENABLED = 0b001
+                Y_ENABLED = 0b010
+                Z_ENABLED = 0b100
+                ALL_ENABLED = 0b111
+
+
+            def __init__(self, decimation: DecimationRatio = DecimationRatio.ONE, acc_axis: AccAxisOutput = AccAxisOutput.ALL_ENABLED):
+                self.decimation = decimation
+                self.acc_axis = acc_axis
+
+            def __int__(self):
+                return (self.gyro_axis.value<<3 )+(self.acc_latched_interrupt.value<<1)+self.acc_interrupt_position_recognition.value
+
+
+
 # TODO ORIENT_CFG_G and interrupt config registers
 
 
@@ -448,18 +489,39 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C.value, data=0b0101_0101) # auto increment address
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C.value, data=0b0101_0101) # auto increment address
 
-    def full_settings(self, freq: AccGyroOutputDataRate = AccGyroOutputDataRate.F_119Hz, gyro_fs: GyroFullScaleSelector = GyroFullScaleSelector.F_2000dps, gyro_bw: GyroBandwidthSelector = GyroBandwidthSelector.BW_0):
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL)
-        self.accgyro_writer.send_command((freq<<5)+(gyro_fs<<3)+gyro_bw, address=LSM9DS1.RegsAccGyro.CTRL_REG1_G)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL_REG2_G)
-        
-        
+    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(int(reg1), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G.value)
+        self.accgyro_writer.send_command(int(reg2), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G.value)
+        self.accgyro_writer.send_command(int(reg3),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G.value)
+        self.accgyro_writer.send_command(int(reg4),address=LSM9DS1.RegsAccGyro.CTRL_REG4.value)
+        self.accgyro_writer.send_command(int(reg5),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL.value)
+        self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value)
+        self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value)
+        self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value)
+        self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value)
+        self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+
+
+    def check(self):
+        sensor_identity = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, 1)
+        status = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.STATUS_REG, 1)
+        # TODO nice print of status & check of values
 
 class DummyAccGyro(AccGyro):
     """
