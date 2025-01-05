@@ -85,7 +85,7 @@ class SMBusInterface(Interface):
         Read and return data from the interface.
 
         Parameters:
-            * register: Register to read from. Default is 0x22.
+            * address: Register to read from. Default is 0x22.
             * max_bytes: Maximum number of bytes to read. Default is 1024.
 
         Returns:

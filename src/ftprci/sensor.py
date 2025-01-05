@@ -489,7 +489,7 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C.value, data=0b0101_0101) # auto increment address
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C.value, data=0b0101_0101) # auto increment address
 
-    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
+    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None):#, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS.value)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR.value)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL.value)
@@ -504,11 +504,11 @@ class LSM9DS1(AccGyroMag):
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G.value)
         self.accgyro_writer.send_command(int(reg4),address=LSM9DS1.RegsAccGyro.CTRL_REG4.value)
         self.accgyro_writer.send_command(int(reg5),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL.value)
-        self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value)
-        self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value)
-        self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value)
-        self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value)
-        self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value)
+        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value)
+        # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value)
+        # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value)
+        # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value)
+        # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
         self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
@@ -519,9 +519,17 @@ class LSM9DS1(AccGyroMag):
 
 
     def check(self):
-        sensor_identity = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, 1)
-        status = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.STATUS_REG, 1)
+        sensor_identity = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, max_bytes=1)
+        status = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.STATUS_REG, max_bytes=1)
+        print(f"checked sensor {sensor_identity:02x}, got status {status:08b}")
         # TODO nice print of status & check of values
+
+
+    def read(self):
+        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=2)
+        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=2)
+        mag = self.mag_reader.read(address=0x28, max_bytes=2)
+        return LSM9DS1.RawData(*struct.unpack('hh', bytes(acc)), *struct.unpack('hh', bytes(gyro)), *struct.unpack('hh', bytes(mag)))
 
 class DummyAccGyro(AccGyro):
     """
