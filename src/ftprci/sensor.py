@@ -58,7 +58,8 @@ class Sensor(abc.ABC):
 
 
     class RawData:
-        pass
+        def __repr__(self):
+            return f"{self.__class__.__name__}({', '.join([f'{key}={value}' for key, value in self.__dict__.items()])})"
 
 
     @abc.abstractmethod
@@ -84,24 +85,24 @@ class Sensor(abc.ABC):
 
 
 class Accelerometer(Sensor):
-    class RawData:
+    class RawData(Sensor.RawData):
         def __init__(self, acc=(0, 0, 0)):
             self.acc = Sensor.OutputTypes.Vector3(*acc)
 
 
 class Gyrometer(Sensor):
-    class RawData:
+    class RawData(Sensor.RawData):
         def __init__(self, pqr=(0, 0, 0)):
             self.pqr = Sensor.OutputTypes.Vector3(*pqr)
 
 
 class Encoder(Sensor):
-    class RawData:
+    class RawData(Sensor.RawData):
         def __init__(self, turns):
             self.turns = turns
 
 class Magnetometer(Sensor):
-    class RawData:
+    class RawData(Sensor.RawData):
         def __init__(self, field=(0, 0, 0)):
             self.field = Sensor.OutputTypes.Vector3(*field)
 
@@ -114,7 +115,7 @@ class AccGyro(Accelerometer, Gyrometer):
 
     `RawData` is `(Vector3, Vector3)`
     """
-    class RawData:
+    class RawData(Sensor.RawData):
         """
         Class for storing the output of combined accelerometers and gyroscopes.
 
@@ -140,7 +141,7 @@ class AccGyroMag(Accelerometer, Gyrometer, Magnetometer):
 
     `RawData` is (Vector3, Vector3, Vector3)`
     """
-    class RawData:
+    class RawData(Sensor.RawData):
         """
         Class for storing the output of combined accelerometers, gyroscopes and magnetometers.
 
