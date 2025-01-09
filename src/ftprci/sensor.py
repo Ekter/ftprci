@@ -521,7 +521,7 @@ class LSM9DS1(AccGyroMag):
         sensor_identity = self.accgyro.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, max_bytes=1)[0]
         status_l = self.accgyro.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_L, max_bytes=1)[0]
         status_h = self.accgyro.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_H, max_bytes=1)[0]
-        print(f"checked sensor {sensor_identity:02x}, got status {status_l:08b} and {status_h:08b}")
+        print(f"checked sensor {sensor_identity:08b}, got status {status_l:08b} and {status_h:08b}")
         # TODO nice print of status & check of values
 
 
