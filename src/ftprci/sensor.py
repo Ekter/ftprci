@@ -529,7 +529,7 @@ class LSM9DS1(AccGyroMag):
         acc = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
 
         # mag = self.mag_reader.read(address=0x28, max_bytes=6)
-        return LSM9DS1.RawData(*struct.unpack('hhh', bytes(acc)), *struct.unpack('hhh', bytes(gyro)), (0, 0, 0)) #*struct.unpack('hh', bytes(mag)))
+        return LSM9DS1.RawData(acc=struct.unpack('hhh', bytes(acc)), pqr=struct.unpack('hhh', bytes(gyro)), field=(0, 0, 0)) #*struct.unpack('hh', bytes(mag)))
     
     def get_temp(self):
         temp = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_TEMP_L, max_bytes=2)
