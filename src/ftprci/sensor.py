@@ -477,10 +477,8 @@ class LSM9DS1(AccGyroMag):
         Depending on the state of the SA0 pin, the write address can be either 0xD4 or 0xD6(read is +1) for the acc and gyro, and 0x38 or 0x3C for the mag.
         """
         super().__init__()
-        self.accgyro_writer = interface.SMBusInterface(0x6A+pin_SA0)
-        # self.accgyro_reader = interface.SMBusInterface(0xD5+pin_SA0)
-        self.mag_reader = interface.SMBusInterface(0x1c+pin_SA0*2)
-        # self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
+        self.accgyro = interface.SMBusInterface(0x6A+pin_SA0)
+        self.mag = interface.SMBusInterface(0x1c+pin_SA0*2)
         self.full_settings()
 
         # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL, data=True) # 208 Hz ODR, 2 g FS
@@ -490,51 +488,51 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C, data=0b0101_0101) # auto increment address
 
     def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None):#, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(int(reg1) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg1()), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G, data=True)
-        self.accgyro_writer.send_command(int(reg2) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg2()), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G, data=True)
-        self.accgyro_writer.send_command(int(reg3) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg3()),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G, data=True)
-        self.accgyro_writer.send_command(int(reg4) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg4()),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
-        self.accgyro_writer.send_command(int(reg5) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg5()),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(int(reg1) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg1()), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G, data=True)
+        self.accgyro.send_command(int(reg2) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg2()), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G, data=True)
+        self.accgyro.send_command(int(reg3) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg3()),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G, data=True)
+        self.accgyro.send_command(int(reg4) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg4()),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
+        self.accgyro.send_command(int(reg5) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg5()),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
         # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL, data=True)
         # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL, data=True)
         # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8, data=True)
         # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9, data=True)
         # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
 
 
     def check(self):
-        sensor_identity = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, max_bytes=1)
-        status_l = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_L, max_bytes=1)
-        status_h = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_H, max_bytes=1)
+        sensor_identity = self.accgyro.read(address=LSM9DS1.RegsAccGyro.WHO_AM_I, max_bytes=1)
+        status_l = self.accgyro.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_L, max_bytes=1)
+        status_h = self.accgyro.read(address=LSM9DS1.RegsAccGyro.STATUS_REG_H, max_bytes=1)
         print(f"checked sensor {sensor_identity:02x}, got status {status_l:08b} and {status_h:08b}")
         # TODO nice print of status & check of values
 
 
     def read(self):
-        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=6)
-        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
+        gyro = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=6)
+        acc = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
 
         # mag = self.mag_reader.read(address=0x28, max_bytes=6)
         return LSM9DS1.RawData(*struct.unpack('hhh', bytes(acc)), *struct.unpack('hhh', bytes(gyro)), (0, 0, 0)) #*struct.unpack('hh', bytes(mag)))
     
     def get_temp(self):
-        temp = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_TEMP_L, max_bytes=2)
+        temp = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_TEMP_L, max_bytes=2)
         return struct.unpack('h', bytes(temp))[0]/16
 
 class DummyAccGyro(AccGyro):
