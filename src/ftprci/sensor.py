@@ -463,7 +463,7 @@ class LSM9DS1(AccGyroMag):
                 self.acc_axis = acc_axis
 
             def __int__(self):
-                return (self.gyro_axis.value<<3 )+(self.acc_latched_interrupt.value<<1)+self.acc_interrupt_position_recognition.value
+                return (self.decimation.value<<6 )+(self.acc_axis.value<<3)
 
 
 
