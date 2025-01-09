@@ -477,10 +477,10 @@ class LSM9DS1(AccGyroMag):
         Depending on the state of the SA0 pin, the write address can be either 0xD4 or 0xD6(read is +1) for the acc and gyro, and 0x38 or 0x3C for the mag.
         """
         super().__init__()
-        self.accgyro_writer = interface.SMBusInterface(0xD4+pin_SA0*2)
-        self.accgyro_reader = interface.SMBusInterface(0xD5+pin_SA0*2)
-        self.mag_reader = interface.SMBusInterface(0x38+pin_SA0*4)
-        self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
+        self.accgyro_writer = interface.SMBusInterface(0x6A+pin_SA0)
+        # self.accgyro_reader = interface.SMBusInterface(0xD5+pin_SA0)
+        self.mag_reader = interface.SMBusInterface(0x1c+pin_SA0*2)
+        # self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
         self.full_settings()
 
         # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
@@ -490,32 +490,32 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C.value, data=0b0101_0101) # auto increment address
 
     def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None):#, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(int(reg1), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G.value)
-        self.accgyro_writer.send_command(int(reg2), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G.value)
-        self.accgyro_writer.send_command(int(reg3),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G.value)
-        self.accgyro_writer.send_command(int(reg4),address=LSM9DS1.RegsAccGyro.CTRL_REG4.value)
-        self.accgyro_writer.send_command(int(reg5),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL.value)
-        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value)
-        # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value)
-        # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value)
-        # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value)
-        # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(int(reg1), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G.value, data=True)
+        self.accgyro_writer.send_command(int(reg2), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G.value, data=True)
+        self.accgyro_writer.send_command(int(reg3),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G.value, data=True)
+        self.accgyro_writer.send_command(int(reg4),address=LSM9DS1.RegsAccGyro.CTRL_REG4.value, data=True)
+        self.accgyro_writer.send_command(int(reg5),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL.value, data=True)
+        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value, data=True)
+        # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value, data=True)
+        # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value, data=True)
+        # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value, data=True)
+        # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
 
 
     def check(self):
@@ -527,10 +527,15 @@ class LSM9DS1(AccGyroMag):
 
 
     def read(self):
-        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=2)
-        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=2)
-        mag = self.mag_reader.read(address=0x28, max_bytes=2)
-        return LSM9DS1.RawData(*struct.unpack('hh', bytes(acc)), *struct.unpack('hh', bytes(gyro)), *struct.unpack('hh', bytes(mag)))
+        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=6)
+        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
+
+        # mag = self.mag_reader.read(address=0x28, max_bytes=6)
+        return LSM9DS1.RawData(*struct.unpack('hhh', bytes(acc)), *struct.unpack('hhh', bytes(gyro)), (0, 0, 0)) #*struct.unpack('hh', bytes(mag)))
+    
+    def get_temp(self):
+        temp = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_TEMP_L, max_bytes=2)
+        return struct.unpack('h', bytes(temp))[0]/16
 
 class DummyAccGyro(AccGyro):
     """
