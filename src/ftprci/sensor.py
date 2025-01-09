@@ -477,10 +477,10 @@ class LSM9DS1(AccGyroMag):
         Depending on the state of the SA0 pin, the write address can be either 0xD4 or 0xD6(read is +1) for the acc and gyro, and 0x38 or 0x3C for the mag.
         """
         super().__init__()
-        self.accgyro_writer = interface.SMBusInterface(0xD4+pin_SA0*2)
-        self.accgyro_reader = interface.SMBusInterface(0xD5+pin_SA0*2)
-        self.mag_reader = interface.SMBusInterface(0x38+pin_SA0*4)
-        self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
+        self.accgyro_writer = interface.SMBusInterface(0x6A+pin_SA0)
+        # self.accgyro_reader = interface.SMBusInterface(0xD5+pin_SA0)
+        self.mag_reader = interface.SMBusInterface(0x1c+pin_SA0*2)
+        # self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
         self.full_settings()
 
         # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
@@ -527,10 +527,15 @@ class LSM9DS1(AccGyroMag):
 
 
     def read(self):
-        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=2)
-        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=2)
-        mag = self.mag_reader.read(address=0x28, max_bytes=2)
-        return LSM9DS1.RawData(*struct.unpack('hh', bytes(acc)), *struct.unpack('hh', bytes(gyro)), *struct.unpack('hh', bytes(mag)))
+        gyro = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=6)
+        acc = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
+
+        # mag = self.mag_reader.read(address=0x28, max_bytes=6)
+        return LSM9DS1.RawData(*struct.unpack('hhh', bytes(acc)), *struct.unpack('hhh', bytes(gyro)), (0, 0, 0)) #*struct.unpack('hh', bytes(mag)))
+    
+    def get_temp(self):
+        temp = self.accgyro_reader.read(address=LSM9DS1.RegsAccGyro.OUT_TEMP_L, max_bytes=2)
+        return struct.unpack('h', bytes(temp))[0]/16
 
 class DummyAccGyro(AccGyro):
     """
