@@ -339,7 +339,7 @@ class LSM9DS1(AccGyroMag):
 
             Used for enabling low power mode and for the configuration of the high pass filter.
             """
-            def __init__(self, int_sel: int, out_sel: int): # TODO
+            def __init__(self, int_sel: int = 0, out_sel: int = 0): # TODO
                 self.int_sel = int_sel
                 self.out_sel = out_sel
 
