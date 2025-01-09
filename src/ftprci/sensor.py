@@ -205,7 +205,7 @@ class LSM9DS1(AccGyroMag):
     `RawData` is `(Vector3, Vector3, Vector3)`
     """
 
-    class RegsAccGyro(enum.Enum):
+    class RegsAccGyro:
         "NAME = HEX # BIN DEFAULT MODE COMMENTARY"
         ACT_THS = 0x04          # 00000100 00000000 r/w     Activity threshold register
         ACT_DUR = 0x05 # 00000101 00000000 r/w              Inactivity duration register
@@ -483,39 +483,39 @@ class LSM9DS1(AccGyroMag):
         # self.mag_writer = interface.SMBusInterface(0x39+pin_SA0*4)
         self.full_settings()
 
-        # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL.value, data=True) # 208 Hz ODR, 2 g FS
-        # self.interface.send_command(0x58, address=LSM9DS1.RegsAccGyro.CTRL2_G.value, data=0b0101_0101) # 208 Hz ODR, 1000 dps FS
-        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL3_C.value, data=0b0101_0101) # auto increment address
-        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C.value, data=0b0101_0101) # auto increment address
-        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C.value, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x50, address=LSM9DS1.RegsAccGyro.CTRL1_XL, data=True) # 208 Hz ODR, 2 g FS
+        # self.interface.send_command(0x58, address=LSM9DS1.RegsAccGyro.CTRL2_G, data=0b0101_0101) # 208 Hz ODR, 1000 dps FS
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL3_C, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C, data=0b0101_0101) # auto increment address
+        # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C, data=0b0101_0101) # auto increment address
 
     def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None):#, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(int(reg1) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg1(), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G.value, data=True)
-        self.accgyro_writer.send_command(int(reg2) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg2(), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G.value, data=True)
-        self.accgyro_writer.send_command(int(reg3) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg3(),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G.value, data=True)
-        self.accgyro_writer.send_command(int(reg4) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg4(),address=LSM9DS1.RegsAccGyro.CTRL_REG4.value, data=True)
-        self.accgyro_writer.send_command(int(reg5) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg5(),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL.value, data=True)
-        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL.value, data=True)
-        # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL.value, data=True)
-        # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8.value, data=True)
-        # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9.value, data=True)
-        # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
-        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL.value, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_X_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(int(reg1) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg1(), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G, data=True)
+        self.accgyro_writer.send_command(int(reg2) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg2(), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G, data=True)
+        self.accgyro_writer.send_command(int(reg3) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg3(),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G, data=True)
+        self.accgyro_writer.send_command(int(reg4) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg4(),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
+        self.accgyro_writer.send_command(int(reg5) if reg1 is not None else LSM9DS1.RegsAccGyro.CtrlReg5(),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
+        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL, data=True)
+        # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL, data=True)
+        # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8, data=True)
+        # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9, data=True)
+        # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro_writer.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
 
 
     def check(self):
