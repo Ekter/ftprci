@@ -266,7 +266,7 @@ class LSM9DS1(AccGyroMag):
 
             Used for enabling low power mode and for the configuration of the high pass filter.
             """
-            class AccGyroOutputDataRate(enum.Enum):
+            class GyroOutputDataRate(enum.Enum):
                 POWER_DOWN = 0b000
                 F_14Hz9 = 0b001
                 F_59Hz5 = 0b010
@@ -430,7 +430,7 @@ class LSM9DS1(AccGyroMag):
 
         class CtrlReg5:
             """
-            Control register number 4 for the accelerometer.
+            Control register number 5 for the accelerometer.
 
             Used for enabling each accelerometer axis output separately and to change decimation.
             """
@@ -465,6 +465,59 @@ class LSM9DS1(AccGyroMag):
 
             def __int__(self):
                 return (self.decimation.value<<6 )+(self.acc_axis.value<<3)
+        
+
+
+        class CtrlReg6:
+            """
+            Control register number 6 for the accelerometer.
+
+            Used to change output data rate of the accelerometer, the full scale and the bandwidth.
+            """
+            class AccOutputDataRate(enum.Enum):
+                POWER_DOWN = 0b000
+                F_10Hz = 0b001
+                F_50Hz = 0b010
+                F_119Hz = 0b011
+                F_238Hz = 0b100
+                F_476Hz = 0b101
+                F_952Hz = 0b110
+
+            class AccFullScaleSelector(enum.Enum):
+                """
+                Edit the full scale of the accelerometer.
+
+                This value is in g, and is the absolute value of the maximum acceleration that can be measured(so the range is twice this value).
+                """
+                FS_2G = 0b00
+                FS_4G = 0b10
+                FS_8G = 0b11
+                FS_16G = 0b01
+
+            class AccBandwidthSelector(enum.Enum):
+                """
+                Anti-aliasing filter bandwidth selection.
+
+                If unset, the value will depend on the ODR:
+                    * BW = 408 Hz when ODR = 952 Hz, 50 Hz, 10 Hz
+                    * BW = 211 Hz when ODR = 476 Hz
+                    * BW = 105 Hz when ODR = 238 Hz
+                    * BW = 50 Hz when ODR = 119 Hz
+                """
+                UNSET = 0b000
+                F_50Hz = 0b111
+                F_105Hz = 0b110
+                F_211Hz = 0b101
+                F_408Hz = 0b100
+
+
+            def __init__(self, acc_odr: AccOutputDataRate = AccOutputDataRate.F_119Hz, acc_full_scale:AccFullScaleSelector = AccFullScaleSelector.FS_8G, bdw:AccBandwidthSelector = AccBandwidthSelector.UNSET):
+                self.acc_odr = acc_odr
+                self.acc_full_scale = acc_full_scale
+                self.bdw = bdw
+
+            def __int__(self):
+                return (self.acc_odr.value<<5 )+(self.acc_full_scale.value<<3)+self.bdw.value
 
 
 
@@ -488,7 +541,7 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C, data=0b0101_0101) # auto increment address
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C, data=0b0101_0101) # auto increment address
 
-    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None):#, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
+    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None, reg6: RegsAccGyro.CtrlReg6 = None):#, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL, data=True)
@@ -496,25 +549,25 @@ class LSM9DS1(AccGyroMag):
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Y_XL, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_THS_Z_XL, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        self.accgyro.send_command(int(reg6) if reg6 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg6()),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL, data=True)
         self.accgyro.send_command(int(reg1) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg1()), address=LSM9DS1.RegsAccGyro.CTRL_REG1_G, data=True)
-        self.accgyro.send_command(int(reg2) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg2()), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G, data=True)
-        self.accgyro.send_command(int(reg3) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg3()),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G, data=True)
+        self.accgyro.send_command(int(reg2) if reg2 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg2()), address=LSM9DS1.RegsAccGyro.CTRL_REG2_G, data=True)
+        self.accgyro.send_command(int(reg3) if reg3 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg3()),address=LSM9DS1.RegsAccGyro.CTRL_REG3_G, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ORIENT_CFG_G, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G, data=True)
-        self.accgyro.send_command(int(reg4) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg4()),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
-        self.accgyro.send_command(int(reg5) if reg1 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg5()),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
-        # self.accgyro_writer.send_command(int(reg6),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL, data=True)
+        self.accgyro.send_command(int(reg4) if reg4 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg4()),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
+        self.accgyro.send_command(int(reg5) if reg5 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg5()),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
         # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL, data=True)
         # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8, data=True)
         # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9, data=True)
         # self.accgyro_writer.send_command(int(reg10),address=LSM9DS1.RegsAccGyro.CTRL_REG10, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
-        self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
+        # self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_DUR_XL, data=True)
 
 
     def check(self):
