@@ -266,7 +266,10 @@ class LSM9DS1(AccGyroMag):
 
             Used for enabling low power mode and for the configuration of the high pass filter.
             """
-            class GyroOutputDataRate(enum.Enum):
+            class AccGyroOutputDataRate(enum.Enum):
+                """
+                Output data rate of the gyroscope and of the accelerometer if not in accelerometer only mode(see Operating modes of doc).
+                """
                 POWER_DOWN = 0b000
                 F_14Hz9 = 0b001
                 F_59Hz5 = 0b010
