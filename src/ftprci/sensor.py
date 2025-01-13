@@ -226,7 +226,7 @@ class LSM9DS1(AccGyroMag):
         INT_GEN_SRC_G = 0x14 # 00010100 output r            Angular rate sensor interrupt source register
         OUT_TEMP_L = 0x15 # 00010101 output r               Temperature data output register. L and H registers together express a 16-bit word in two’s complement right-justified
         OUT_TEMP_H = 0x16 # 00010110 output r
-        STATUS_REG_L = 0x17 # 00010111 output r               Status register
+        STATUS_REG_L = 0x17 # 00010111 output r             Status register
         OUT_X_L_G = 0x18 # 00011000 output r                Angular rate sensor pitch axis (X) angular rate output register. The value is expressed as a 16-bit word in two’s complement
         OUT_X_H_G = 0x19 # 00011001 output r
         OUT_Y_L_G = 0x1A # 00011010 output r                Angular rate sensor roll axis (Y) angular rate output register. The value is expressed as a 16-bit word in two’s complement
@@ -241,7 +241,7 @@ class LSM9DS1(AccGyroMag):
         CTRL_REG9 = 0x23 # 00100011 00000000 r/w            Control register 9
         CTRL_REG10 = 0x24 # 00100100 00000000 r/w           Control register 10
         INT_GEN_SRC_XL = 0x26 # 00100110 output r           Linear acceleration sensor interrupt source register
-        STATUS_REG_H = 0x27 # 00100111 output r               Status register
+        STATUS_REG_H = 0x27 # 00100111 output r             Status register
         OUT_X_L_XL = 0x28 # 00101000 output r               Linear acceleration sensor X-axis output register. The value is expressed as a 16-bit word in two’s complement
         OUT_X_H_XL = 0x29 # 00101001 output r
         OUT_Y_L_XL = 0x2A # 00101010 output r               Linear acceleration sensor Y-axis output register. The value is expressed as a 16-bit word in two’s complement
