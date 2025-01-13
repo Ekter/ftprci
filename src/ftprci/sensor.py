@@ -522,6 +522,202 @@ class LSM9DS1(AccGyroMag):
             def __int__(self):
                 return (self.acc_odr.value<<5 )+(self.acc_full_scale.value<<3)+self.bdw.value
 
+        class CtrlReg7:
+            """
+            Control register number 7 for the accelerometer.
+
+            For various settings of the filters.
+            """
+            class HighResolution(enum.Enum):
+                """
+                Enable high resolution mode and filtering of the acc output. Cutoff frequency is based on ODR.
+                """
+                OFF = 0b000
+                ODR_OVER_9 = 0b110
+                ODR_OVER_50 = 0b100
+                ODR_OVER_100 = 0b101
+                ODR_OVER_400 = 0b111
+
+            class FilteredDataSelection(enum.Enum):
+                """
+                Enable or bypass the filter.
+                """
+                BYPASS = 0b0
+                ENABLED = 0b1
+
+            class InterruptGeneratorHighPassFilter(enum.Enum):
+                """
+                Enable or bypass the filter for the interrupt generator.
+                """
+                DISABLED = 0b0
+                ENABLED = 0b1
+
+
+            def __init__(self, hi_res: HighResolution = HighResolution.OFF, data_sel:FilteredDataSelection = FilteredDataSelection.BYPASS, int_gen_filter:InterruptGeneratorHighPassFilter = InterruptGeneratorHighPassFilter.DISABLED):
+                self.hi_res = hi_res
+                self.data_sel = data_sel
+                self.int_gen_filter = int_gen_filter
+
+            def __int__(self):
+                return (self.hi_res.value<<5 )+(self.data_sel.value<<2)+self.int_gen_filter.value
+
+        class CtrlReg8:
+            """
+            Control register number 8 for the accelerometer.
+
+            Used for various setup settings.
+            """
+            class RebootMemory(enum.Enum):
+                """
+                Reboot memory or not.
+
+                I don't know this resets it tho...
+                """
+                DO_NOTHING = 0b0
+                REBOOT = 0b1
+
+            class BlockDataUpdate(enum.Enum):
+                """
+                Enable or disable block data update.
+                """
+                CONTINUOUS_UPDATE = 0b0
+                BLOCK_DATA_UPDATE = 0b1
+
+            class InterruptActivationLevel(enum.Enum):
+                """
+                Change the interrupt activation level.
+                """
+                HIGH = 0b0
+                LOW = 0b1
+
+            class PushPullOpenDrain(enum.Enum):
+                """
+                Change the output type of the interrupt pin.
+                """
+                PUSH_PULL = 0b0
+                OPEN_DRAIN = 0b1
+
+            class SPIInterfaceSelection(enum.Enum):
+                """
+                Change the SPI interface selection.
+                """
+                SPI_4_WIRE = 0b0
+                SPI_3_WIRE = 0b1
+
+            class AutomaticIncrement(enum.Enum):
+                """
+                Enable or disable automatic increment of the address for multiple reads.
+                """
+                ENABLED = 0b1
+                DISABLED = 0b0
+
+            class Endianness(enum.Enum):
+                """
+                Change the endianness of the output.
+
+                Changing this won't update the sensor output computation method, so use carefully.
+                """
+                LITTLE_ENDIAN = 0b0
+                BIG_ENDIAN = 0b1
+
+            class SoftwareReset(enum.Enum):
+                """
+                Reset software.
+                """
+                DO_NOTHING = 0b0
+                RESET = 0b0
+
+            def __init__(self, mem_rbt: RebootMemory = RebootMemory.DO_NOTHING, bdu: BlockDataUpdate = BlockDataUpdate.CONTINUOUS_UPDATE, int_lvl:InterruptActivationLevel = InterruptActivationLevel.HIGH, pp_od:PushPullOpenDrain = PushPullOpenDrain.PUSH_PULL, spi:SPIInterfaceSelection = SPIInterfaceSelection.SPI_4_WIRE, inc:AutomaticIncrement = AutomaticIncrement.ENABLED, endianness:Endianness = Endianness.LITTLE_ENDIAN, sw_reset:SoftwareReset = SoftwareReset.DO_NOTHING):
+                self.mem_rbt = mem_rbt
+                self.bdu = bdu
+                self.int_lvl = int_lvl
+                self.pp_od = pp_od
+                self.spi = spi
+                self.inc = inc
+                self.endianness = endianness
+                self.sw_reset = sw_reset
+
+            def __int__(self):
+                return (self.mem_rbt.value<<7 )+(self.bdu.value<<6)+(self.int_lvl.value<<5)+(self.pp_od.value<<4 )+(self.spi.value<<3)+(self.inc.value<<2)+(self.endianness.value<<1 )+(self.sw_reset.value<<0)
+
+
+        class CtrlReg9:
+            """
+            Control register number 10.
+
+            Used for sleep mode, fifo settings, and .
+            """
+            class SleepMode(enum.Enum):
+                """
+                Gyroscope sleep mode.
+                """
+                DISABLED = 0b0
+                ENABLED = 0b1
+
+            class TemperatureFIFO(enum.Enum):
+                """
+                Put temperature in the fifo.
+                """
+                TEMP_NOT_IN_FIFO = 0b0
+                TEMP_IN_FIFO = 0b1
+
+            class InterruptActivationLevel(enum.Enum):
+                """
+                Change the interrupt activation level.
+                """
+                HIGH = 0b0
+                LOW = 0b1
+
+            class PushPullOpenDrain(enum.Enum):
+                """
+                Change the output type of the interrupt pin.
+                """
+                PUSH_PULL = 0b0
+                OPEN_DRAIN = 0b1
+
+            class SPIInterfaceSelection(enum.Enum):
+                """
+                Change the SPI interface selection.
+                """
+                SPI_4_WIRE = 0b0
+                SPI_3_WIRE = 0b1
+
+            class AutomaticIncrement(enum.Enum):
+                """
+                Enable or disable automatic increment of the address for multiple reads.
+                """
+                ENABLED = 0b1
+                DISABLED = 0b0
+
+            class Endianness(enum.Enum):
+                """
+                Change the endianness of the output.
+
+                Changing this won't update the sensor output computation method, so use carefully.
+                """
+                LITTLE_ENDIAN = 0b0
+                BIG_ENDIAN = 0b1
+
+            class SoftwareReset(enum.Enum):
+                """
+                Reset software.
+                """
+                DO_NOTHING = 0b0
+                RESET = 0b0
+
+            def __init__(self, mem_rbt: RebootMemory = RebootMemory.DO_NOTHING, bdu: BlockDataUpdate = BlockDataUpdate.CONTINUOUS_UPDATE, int_lvl:InterruptActivationLevel = InterruptActivationLevel.HIGH, pp_od:PushPullOpenDrain = PushPullOpenDrain.PUSH_PULL, spi:SPIInterfaceSelection = SPIInterfaceSelection.SPI_4_WIRE, inc:AutomaticIncrement = AutomaticIncrement.ENABLED, endianness:Endianness = Endianness.LITTLE_ENDIAN, sw_reset:SoftwareReset = SoftwareReset.DO_NOTHING):
+                self.mem_rbt = mem_rbt
+                self.bdu = bdu
+                self.int_lvl = int_lvl
+                self.pp_od = pp_od
+                self.spi = spi
+                self.inc = inc
+                self.endianness = endianness
+                self.sw_reset = sw_reset
+
+            def __int__(self):
+                return (self.mem_rbt.value<<7 )+(self.bdu.value<<6)+(self.int_lvl.value<<5)+(self.pp_od.value<<4 )+(self.spi.value<<3)+(self.inc.value<<2)+(self.endianness.value<<1 )+(self.sw_reset.value<<0)
+
 
 
 # TODO ORIENT_CFG_G and interrupt config registers
