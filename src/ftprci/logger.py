@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import pretlog as pl
 import numpy as np
 import time
@@ -47,7 +46,8 @@ class PlotLogger(TimedLogger):
         self.t.append(time.time())
         self.i += 1
         if self.i % self.update_freq == 0:
+            import matplotlib.pyplot as plt
+
             plt.plot(self.t, self.data)
             plt.pause(1e-9)
         return super().log(data)
-

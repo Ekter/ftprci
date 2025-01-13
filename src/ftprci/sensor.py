@@ -643,9 +643,9 @@ class LSM9DS1(AccGyroMag):
 
         class CtrlReg9:
             """
-            Control register number 10.
+            Control register number 9.
 
-            Used for sleep mode, fifo settings, and .
+            Used for sleep mode, fifo settings, and to disable i2c connection(you normally don't do this).
             """
             class SleepMode(enum.Enum):
                 """
@@ -661,12 +661,12 @@ class LSM9DS1(AccGyroMag):
                 TEMP_NOT_IN_FIFO = 0b0
                 TEMP_IN_FIFO = 0b1
 
-            class InterruptActivationLevel(enum.Enum):
+            class DataAvailable(enum.Enum):
                 """
-                Change the interrupt activation level.
+                Enable or disable the data available timer.
                 """
-                HIGH = 0b0
-                LOW = 0b1
+                DISABLED = 0b0
+                ENABLED = 0b1
 
             class PushPullOpenDrain(enum.Enum):
                 """
@@ -705,18 +705,18 @@ class LSM9DS1(AccGyroMag):
                 DO_NOTHING = 0b0
                 RESET = 0b0
 
-            def __init__(self, mem_rbt: RebootMemory = RebootMemory.DO_NOTHING, bdu: BlockDataUpdate = BlockDataUpdate.CONTINUOUS_UPDATE, int_lvl:InterruptActivationLevel = InterruptActivationLevel.HIGH, pp_od:PushPullOpenDrain = PushPullOpenDrain.PUSH_PULL, spi:SPIInterfaceSelection = SPIInterfaceSelection.SPI_4_WIRE, inc:AutomaticIncrement = AutomaticIncrement.ENABLED, endianness:Endianness = Endianness.LITTLE_ENDIAN, sw_reset:SoftwareReset = SoftwareReset.DO_NOTHING):
-                self.mem_rbt = mem_rbt
-                self.bdu = bdu
-                self.int_lvl = int_lvl
-                self.pp_od = pp_od
-                self.spi = spi
-                self.inc = inc
-                self.endianness = endianness
-                self.sw_reset = sw_reset
+            # def __init__(self, mem_rbt: RebootMemory = RebootMemory.DO_NOTHING, bdu: BlockDataUpdate = BlockDataUpdate.CONTINUOUS_UPDATE, int_lvl:InterruptActivationLevel = InterruptActivationLevel.HIGH, pp_od:PushPullOpenDrain = PushPullOpenDrain.PUSH_PULL, spi:SPIInterfaceSelection = SPIInterfaceSelection.SPI_4_WIRE, inc:AutomaticIncrement = AutomaticIncrement.ENABLED, endianness:Endianness = Endianness.LITTLE_ENDIAN, sw_reset:SoftwareReset = SoftwareReset.DO_NOTHING):
+            #     self.mem_rbt = mem_rbt
+            #     self.bdu = bdu
+            #     self.int_lvl = int_lvl
+            #     self.pp_od = pp_od
+            #     self.spi = spi
+            #     self.inc = inc
+            #     self.endianness = endianness
+            #     self.sw_reset = sw_reset
 
-            def __int__(self):
-                return (self.mem_rbt.value<<7 )+(self.bdu.value<<6)+(self.int_lvl.value<<5)+(self.pp_od.value<<4 )+(self.spi.value<<3)+(self.inc.value<<2)+(self.endianness.value<<1 )+(self.sw_reset.value<<0)
+            # def __int__(self):
+            #     return (self.mem_rbt.value<<7 )+(self.bdu.value<<6)+(self.int_lvl.value<<5)+(self.pp_od.value<<4 )+(self.spi.value<<3)+(self.inc.value<<2)+(self.endianness.value<<1 )+(self.sw_reset.value<<0)
 
 
 
@@ -740,7 +740,7 @@ class LSM9DS1(AccGyroMag):
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL4_C, data=0b0101_0101) # auto increment address
         # self.interface.send_command(0x00, address=LSM9DS1.RegsAccGyro.CTRL5_C, data=0b0101_0101) # auto increment address
 
-    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None, reg6: RegsAccGyro.CtrlReg6 = None):#, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
+    def full_settings(self, reg1: RegsAccGyro.CtrlReg1 = None, reg2: RegsAccGyro.CtrlReg2 = None, reg3: RegsAccGyro.CtrlReg3 = None, reg4: RegsAccGyro.CtrlReg4 = None, reg5: RegsAccGyro.CtrlReg5 = None, reg6: RegsAccGyro.CtrlReg6 = None, reg7: RegsAccGyro.CtrlReg7 = None, reg8: RegsAccGyro.CtrlReg8 = None):#, reg9: RegsAccGyro.CtrlReg9 = None, reg10: RegsAccGyro.CtrlReg10 = None):
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_THS, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.ACT_DUR, data=True)
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_CFG_XL, data=True)
@@ -756,6 +756,9 @@ class LSM9DS1(AccGyroMag):
         self.accgyro.send_command(0x00, address=LSM9DS1.RegsAccGyro.INT_GEN_SRC_G, data=True)
         self.accgyro.send_command(int(reg4) if reg4 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg4()),address=LSM9DS1.RegsAccGyro.CTRL_REG4, data=True)
         self.accgyro.send_command(int(reg5) if reg5 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg5()),address=LSM9DS1.RegsAccGyro.CTRL_REG5_XL, data=True)
+        self.accgyro.send_command(int(reg6) if reg6 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg6()),address=LSM9DS1.RegsAccGyro.CTRL_REG6_XL, data=True)
+        self.accgyro.send_command(int(reg7) if reg7 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg7()),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL, data=True)
+        self.accgyro.send_command(int(reg8) if reg8 is not None else int(LSM9DS1.RegsAccGyro.CtrlReg8()),address=LSM9DS1.RegsAccGyro.CTRL_REG8, data=True)
         # self.accgyro_writer.send_command(int(reg7),address=LSM9DS1.RegsAccGyro.CTRL_REG7_XL, data=True)
         # self.accgyro_writer.send_command(int(reg8),address=LSM9DS1.RegsAccGyro.CTRL_REG8, data=True)
         # self.accgyro_writer.send_command(int(reg9),address=LSM9DS1.RegsAccGyro.CTRL_REG9, data=True)
