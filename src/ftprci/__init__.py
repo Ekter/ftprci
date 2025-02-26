@@ -48,20 +48,33 @@ Here is an example of how to use the library:
 
 """
 
+from . import (
+    actuators,
+    controller,
+    estimator,
+    interface,
+    logger,
+    low_level,
+    main,
+    sensor,
+)
 from .actuators import Actuator, PololuAstar
-from .controller import Controller, PIDController, LQRController, DiscreteDifferential, DiscreteIntegral
-from .estimator import Estimator, DiscreteLowPassFilter, HighPassFilter, ComplementaryFilter, LinearKalmanFilter
+from .controller import (
+    Controller,
+    DiscreteDifferential,
+    DiscreteIntegral,
+    LQRController,
+    PIDController,
+)
+from .estimator import (
+    ComplementaryFilter,
+    DiscreteLowPassFilter,
+    Estimator,
+    HighPassFilter,
+    LinearKalmanFilter,
+)
 from .interface import DummyInterface, Interface, SMBusInterface
-from .main import RunnerThread
-from .sensor import LSM6, Sensor, DummyAccGyro
+from .logger import DataComparativeLogger, Logger, PlotLogger, TimedLogger
 from .low_level import FastBlockingTimer, sleep
-from .logger import Logger, TimedLogger, DataComparativeLogger, PlotLogger
-
-from . import actuators
-from . import controller
-from . import estimator
-from . import interface
-from . import main
-from . import sensor
-from . import low_level
-from . import logger
+from .main import RunnerThread
+from .sensor import LSM6, DummyAccGyro, Sensor

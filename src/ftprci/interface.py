@@ -6,11 +6,12 @@ The -Interface classes are used to communicate with the physical system.
 They can be either USB, I2C, physical output for compatible systems, or any other type of interface.
 """
 
-
-import time
 import abc
+import time
+
 import pretlog as pl
 import smbus
+
 
 class Interface(abc.ABC):
     """
@@ -36,7 +37,7 @@ class Interface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def read(self, *, address=0, max_bytes = 1024):
+    def read(self, *, address=0, max_bytes=1024):
         """
         Read and return data from the interface.
 
@@ -61,11 +62,14 @@ class SMBusInterface(Interface):
     """
     Interface class for the SMBus protocol.
     """
+
     def __init__(self, slave_addr) -> None:
         self.bus = smbus.SMBus(1)
         self.sa = slave_addr
 
-    def send_command(self, *commands, address=0, data:bool = False, block: bool = False):
+    def send_command(
+        self, *commands, address=0, data: bool = False, block: bool = False
+    ):
         """
         Send commands through the interface.
 
@@ -80,7 +84,7 @@ class SMBusInterface(Interface):
         else:
             self.bus.write_byte_data(self.sa, address, *commands)
 
-    def read(self, *, address=0x22, max_bytes = 1024):
+    def read(self, *, address=0x22, max_bytes=1024):
         """
         Read and return data from the interface.
 
@@ -92,6 +96,7 @@ class SMBusInterface(Interface):
             Data read from the interface.
         """
         return self.bus.read_i2c_block_data(self.sa, address, max_bytes)
+
 
 # class I2CInterface(Interface):
 #     """
@@ -110,6 +115,7 @@ class DummyInterface(Interface):
         * read
         * ping
     """
+
     def __init__(self, timeout=1, no_warn=False) -> None:
         if not no_warn:
             pl.warn(
@@ -138,25 +144,24 @@ class DummyInterface(Interface):
         t = time.time()
         self.send_command("ping")
         if self.read() == self.ping_answer:
-            return time.time()-t
+            return time.time() - t
         pl.warn("Malformed ping response.")
-        return time.time()-t
+        return time.time() - t
 
-    def read(self, *, max_bytes = 1024):
+    def read(self, *, max_bytes=1024):
         """
         Read and return data from the interface.
 
         Parameters:
             * max_bytes: Maximum number of bytes to read. Default is 1024.
-        
+
         Returns:
             Data read from the interface.
         """
         return input("Enter command response: ")[:max_bytes]
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     # Test the DummyInterface class
     dummy = DummyInterface()
     dummy.send_command("test")

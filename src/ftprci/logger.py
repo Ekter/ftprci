@@ -1,15 +1,17 @@
-import pretlog as pl
-import numpy as np
 import time
 
+import numpy as np
+import pretlog as pl
 
-class Logger():
+
+class Logger:
     def log(self, data):
         pl.default(data)
         return data
 
     def __call__(self, *args, **kwds):
         return self.log(*args, **kwds)
+
 
 class TimedLogger(Logger):
     def log(self, data):

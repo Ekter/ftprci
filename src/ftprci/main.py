@@ -1,8 +1,7 @@
-from .actuators import Actuator
-
-from .low_level import sleep, FastBlockingTimer
-
 import _thread
+
+from .actuators import Actuator
+from .low_level import FastBlockingTimer, sleep
 
 try:
     from typing import Callable
@@ -63,7 +62,9 @@ class RunnerThread:
     ):
         self.initial_args = []
         self.callback = RunnerThread.CallQueue(self)
-        self.timer = FastBlockingTimer(period=period, frequency=frequency, periodic=periodic, callback=self._run)
+        self.timer = FastBlockingTimer(
+            period=period, frequency=frequency, periodic=periodic, callback=self._run
+        )
         self.thread = _thread.start_new_thread(self.timer.run, ())
 
     def _run(self):

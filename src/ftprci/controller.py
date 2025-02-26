@@ -1,6 +1,8 @@
 import abc
+
 # import enum
 import numpy as np
+
 
 class DiscreteIntegral:
     class EulerF:
@@ -9,14 +11,14 @@ class DiscreteIntegral:
 
         Equivalent to `Discretizer.HighOrd(weights=[1])`.
         """
-        def __init__(self, dt = 1/1000, initial_condition = 0) -> None:
+
+        def __init__(self, dt=1 / 1000, initial_condition=0) -> None:
             self.accumulator = initial_condition
             self.dt = dt
 
         def __call__(self, new):
-            self.accumulator += new*self.dt
+            self.accumulator += new * self.dt
             return self.accumulator
-
 
     class EulerB:
         """
@@ -24,16 +26,16 @@ class DiscreteIntegral:
 
         Equivalent to `Discretizer.HighOrd(weights=[0, 1])`.
         """
-        def __init__(self, dt = 1/1000, initial_condition = 0) -> None:
+
+        def __init__(self, dt=1 / 1000, initial_condition=0) -> None:
             self.accumulator = initial_condition
             self.dt = dt
             self.previous = 0
 
         def __call__(self, new):
-            self.accumulator += self.previous*self.dt
+            self.accumulator += self.previous * self.dt
             self.previous = new
             return self.accumulator
-
 
     class Tustin:
         """
@@ -41,19 +43,21 @@ class DiscreteIntegral:
 
         Equivalent to `Discretizer.HighOrd(weights=[1/2, 1/2])`.
         """
-        def __init__(self, dt = 1/1000, initial_condition = 0) -> None:
+
+        def __init__(self, dt=1 / 1000, initial_condition=0) -> None:
             self.accumulator = initial_condition
             self.dt = dt
             self.previous = 0
 
         def __call__(self, new):
-            self.accumulator += (self.previous+new)/2*self.dt
+            self.accumulator += (self.previous + new) / 2 * self.dt
             self.previous = new
             return self.accumulator
 
-
     class HighOrd:
-        def __init__(self, dt = 1/1000, initial_condition = 0, weights = [1/6, 1/3, 1/2]) -> None: # todo remove mutable
+        def __init__(
+            self, dt=1 / 1000, initial_condition=0, weights=[1 / 6, 1 / 3, 1 / 2]
+        ) -> None:  # todo remove mutable
             self.accumulator = initial_condition
             self.dt = dt
             self.weights = np.array(weights)
@@ -62,7 +66,7 @@ class DiscreteIntegral:
         def __call__(self, new):
             self.previouses = np.roll(self.previouses, 1)
             self.previouses[-1] = new
-            self.accumulator += (self.previouses*self.weights)*self.dt
+            self.accumulator += (self.previouses * self.weights) * self.dt
             return self.accumulator
 
 
@@ -78,7 +82,7 @@ class DiscreteDifferential:
 
 class Controller(abc.ABC):
     def __init__(self) -> None:
-        self.order=0
+        self.order = 0
 
     def set_order(self, order):
         """
@@ -103,7 +107,7 @@ class Controller(abc.ABC):
         """
         Update the controller if needed.
         """
-        return # for ruff-B027
+        return  # for ruff-B027
 
 
 class PIDController(Controller):
@@ -119,8 +123,12 @@ class PIDController(Controller):
         self.derivative = DiscreteDifferential()
 
     def steer(self, state):
-        epsilon = self.order-state
-        return epsilon*self.p+self.i*self.integrator(epsilon)+self.d*self.derivative(epsilon)
+        epsilon = self.order - state
+        return (
+            epsilon * self.p
+            + self.i * self.integrator(epsilon)
+            + self.d * self.derivative(epsilon)
+        )
 
 
 class LQRController(Controller):
@@ -128,5 +136,5 @@ class LQRController(Controller):
         self.weights = np.array(weights)
 
     def steer(self, state):
-        epsilon = np.array(self.order-state)
-        return epsilon*self.weights
+        epsilon = np.array(self.order - state)
+        return epsilon * self.weights

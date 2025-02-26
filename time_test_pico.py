@@ -1,5 +1,7 @@
 import time
+
 import machine
+
 machine.freq(240000000)
 N = 1000
 print(f"{N=}")
@@ -8,11 +10,11 @@ l = []
 
 
 for i in range(N):
-    l.append(time.ticks_us()-time.ticks_us())
-print("1: (tick-tick N times)",sum(l)/N)
+    l.append(time.ticks_us() - time.ticks_us())
+print("1: (tick-tick N times)", sum(l) / N)
 
 t = time.ticks_us()
-#0
+# 0
 time.ticks_us()
 time.ticks_us()
 time.ticks_us()
@@ -1012,25 +1014,26 @@ time.ticks_us()
 time.ticks_us()
 time.ticks_us()
 time.ticks_us()
-#time.ticks_us()
-t=t-time.ticks_us()
+# time.ticks_us()
+t = t - time.ticks_us()
 
-print("2: (tick 1000 times in a row)", t/1000)
+print("2: (tick 1000 times in a row)", t / 1000)
 l = []
 
 
 for i in range(N):
-    l.append(time.ticks_us()-100-time.ticks_us())
+    l.append(time.ticks_us() - 100 - time.ticks_us())
 
-print("3: (with -cst-)",sum(l)/N+100)
+print("3: (with -cst-)", sum(l) / N + 100)
 
 
 l = []
 
 
 for i in range(N):
-    l.append(time.ticks_us()-(time.ticks_us() if time.ticks_diff(1,0) else time.ticks_us()))
+    l.append(
+        time.ticks_us()
+        - (time.ticks_us() if time.ticks_diff(1, 0) else time.ticks_us())
+    )
 
-print("4: (with sleep_us(1))",sum(l)/N)
-
-
+print("4: (with sleep_us(1))", sum(l) / N)

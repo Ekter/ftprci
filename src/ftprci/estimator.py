@@ -1,6 +1,9 @@
 import abc
-from . import sensor
+
 import numpy as np
+
+from . import sensor
+
 
 class Estimator(abc.ABC):
     """
@@ -29,7 +32,7 @@ class Estimator(abc.ABC):
         """
         The __init__ method should be overloaded if an initialization is needed.
         """
-        return #ruff-B027
+        return  # ruff-B027
 
     def __call__(self, data):
         return self.estimate(data)
@@ -41,7 +44,8 @@ class DiscreteLowPassFilter(Estimator):
 
     Alpha = e^(-dt/wc)
     """
-    def __init__(self, alpha = 5, dimension = 1):
+
+    def __init__(self, alpha=5, dimension=1):
         super().__init__()
         self.alpha = alpha
         self.y = np.zeros((1, dimension))
@@ -57,14 +61,15 @@ class DiscreteHighPassFilter(Estimator):
 
     Alpha = 1/(dt*wc+1)
     """
-    def __init__(self, alpha = 5, dimension = 1):
+
+    def __init__(self, alpha=5, dimension=1):
         super().__init__()
         self.alpha = alpha
         self.y = np.zeros((1, dimension))
         self.prev_x = np.zeros((1, dimension))
 
     def estimate(self, data):
-        self.y = self.y * self.alpha + self.alpha *(data-self.prev_x)
+        self.y = self.y * self.alpha + self.alpha * (data - self.prev_x)
         self.prev_x = data
         return self.y
 
@@ -73,7 +78,8 @@ class HighPassFilter(Estimator):
     """
     High pass filter(just a subtraction with the mean over some measurements)
     """
-    def __init__(self, buffer_size = 5, dimension = 1):
+
+    def __init__(self, buffer_size=5, dimension=1):
         super().__init__()
         self.buffer = np.zeros((buffer_size, dimension))
 
@@ -90,7 +96,8 @@ class ComplementaryFilter(Estimator):
 
     Input type is `sensor.AccGyro.RawData`
     """
-    def __init__(self, buf_size = 5):
+
+    def __init__(self, buf_size=5):
         super().__init__()
         self.acc_low_pass = DiscreteLowPassFilter(buffer_size=buf_size, dimension=3)
         self.gyro_high_pass = HighPassFilter(buffer_size=buf_size, dimension=3)
@@ -98,13 +105,13 @@ class ComplementaryFilter(Estimator):
     def estimate(self, data: sensor.AccGyro.RawData):
         acc = self.acc_low_pass(data.acc)
         theta_dot = self.gyro_high_pass(data.gyro)
-        theta = np.acos(acc[0]/np.linalg.norm(acc))
+        theta = np.acos(acc[0] / np.linalg.norm(acc))
 
         return theta, theta_dot
 
 
 class LinearKalmanFilter(Estimator):
-    def __init__(self, xhat_init, P_init, H, F, Q, R, G = None, Ts=None):
+    def __init__(self, xhat_init, P_init, H, F, Q, R, G=None, Ts=None):
         super().__init__()
         if G is None:
             self.G = np.zeros(xhat_init.shape[0])
@@ -120,24 +127,28 @@ class LinearKalmanFilter(Estimator):
         self.F = F
         self.Q = Q
         self.R = R
-        self.phi = np.eye(F.shape[0]) + F*Ts + F*F*Ts*Ts/2
+        self.phi = np.eye(F.shape[0]) + F * Ts + F * F * Ts * Ts / 2
 
-    def estimate(self, data, u = None):
+    def estimate(self, data, u=None):
         if u is None:
-            u=np.zeros((self.xhat.shape[0], 1))
+            u = np.zeros((self.xhat.shape[0], 1))
 
         if self.R.shape[0] == 1:
-            K = self.P_minus @ self.H.T /(self.H @ self.P_minus @ self.H.T + self.R)
+            K = self.P_minus @ self.H.T / (self.H @ self.P_minus @ self.H.T + self.R)
 
         else:
 
-            K = self.P_minus @ self.H.T @ np.linalg.inv(self.H @ self.P_minus @ self.H.T + self.R)
+            K = (
+                self.P_minus
+                @ self.H.T
+                @ np.linalg.inv(self.H @ self.P_minus @ self.H.T + self.R)
+            )
 
         self.xhat = self.xhat_minus + K @ (data - self.H @ self.xhat_minus)
 
         self.xhat_minus = self.phi @ self.xhat + self.G @ u
 
-        self.P = (self.I-K @ self.H) @ self.P_minus
+        self.P = (self.I - K @ self.H) @ self.P_minus
 
         self.P_minus = self.phi @ self.P @ self.phi.T + self.Q
 

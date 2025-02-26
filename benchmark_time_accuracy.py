@@ -50,7 +50,7 @@ if MP:
     print("copy this or open result.json")
 
 print(l)
-#json.dump(l, "result.json")
+# json.dump(l, "result.json")
 with open("result.json", "w") as res:
     res.write(json.dumps(l))
 
@@ -60,6 +60,7 @@ if MP:
 res = True
 if res:
     import result
+
     l = result.l
 
 plt.plot(np.array(l)[:, 0], "b.", label="time.sleep")

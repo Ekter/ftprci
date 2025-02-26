@@ -10,8 +10,9 @@ Imported by main, member of the robot class.
 """
 
 import abc
-import struct
 import enum
+import struct
+
 from . import interface
 
 
