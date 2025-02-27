@@ -74,7 +74,14 @@ from .estimator import (
     LinearKalmanFilter,
 )
 from .interface import DummyInterface, Interface, SMBusInterface
-from .logger import DataComparativeLogger, Logger, PlotLogger, TimedLogger
+from .logger import (
+    DataComparativeLogger,
+    Logger,
+    PlotLogger1D,
+    PlotLogger3D,
+    ProgressBar,
+    TimedLogger,
+)
 from .low_level import FastBlockingTimer, sleep
-from .main import RunnerThread
-from .sensor import LSM6, DummyAccGyro, Sensor
+from .main import Clock, RunnerThread
+from .sensor import LSM6, LSM9DS1, DummyAccGyro, Sensor, Trajectory3D

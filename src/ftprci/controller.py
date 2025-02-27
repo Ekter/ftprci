@@ -109,6 +109,9 @@ class Controller(abc.ABC):
         """
         return  # for ruff-B027
 
+    def __call__(self, state):
+        return self.steer(state)
+
 
 class PIDController(Controller):
     def __init__(self, p, i, d, integrator: DiscreteIntegral = None):

@@ -1,3 +1,5 @@
 pretlog
 numpy
+# TODO remove smbus
 smbus
+tqdm

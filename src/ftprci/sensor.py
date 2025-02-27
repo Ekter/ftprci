@@ -21,6 +21,8 @@ import math
 import random
 import struct
 
+import numpy as np
+
 from . import interface
 
 
@@ -984,9 +986,166 @@ class DummyAccGyro(AccGyro):
                 7 + math.cos(self.t / 100) + random.random() * 0.1 - 0.05,
                 4 * math.sin(self.t / 100) + random.random() * 0.1 - 0.05,
             ),
-            gyro=(
+            pqr=(
                 6 + random.random() * 0.01 - 0.005,
                 random.random() * 0.01 - 0.005,
                 2 + random.random() * 0.01 - 0.005,
             ),
         )
+
+
+class Trajectory3D(Sensor):
+    class RawData(Sensor.RawData):
+        def __init__(self, xyz=(0, 0, 0)):
+            self.xyz = Sensor.OutputTypes.Vector3(*xyz)
+
+    class Pattern(enum.Enum):
+        LINEAR = 0x1
+        CIRCULAR = 0x2
+        TRIG = 0x4
+        MIX = 0x7
+
+    class Curve:
+        def __init__(self, start_time, end_time):
+            self.start_time = start_time
+            self.end_time = end_time
+            self.finished = False
+
+        def ratio(self, t):
+            if t >= self.end_time:
+                self.finished = True
+            return (t - self.start_time) / (self.end_time - self.start_time)
+
+        def __bool__(self):
+            return True
+
+    class LinearCurve(Curve):
+        def __init__(self, start, end, start_time, end_time):
+            super().__init__(start_time, end_time)
+            self.start = start
+            self.end = end
+
+        def __call__(self, t):
+            return self.start + (self.end - self.start) * self.ratio(t)
+
+        @staticmethod
+        def generate(start_time, start_point):
+            return Trajectory3D.LinearCurve(
+                start_point,
+                np.random.normal(size=(3)),
+                start_time,
+                start_time + np.random.uniform(0.3, 1),
+            )
+
+    class CircularCurve(Curve):
+        def __init__(self, center, radius, orientation, start_time, end_time):
+            super().__init__(start_time, end_time)
+            self.center = center
+            self.radius = radius
+            self.orientation = orientation
+            cos_alpha, sin_alpha = np.cos(orientation[0]), np.sin(orientation[0])
+            cos_beta, sin_beta = np.cos(orientation[1]), np.sin(orientation[1])
+            cos_gamma, sin_gamma = np.cos(orientation[2]), np.sin(orientation[2])
+            self.transform = np.array(
+                [
+                    [
+                        cos_alpha * cos_beta,
+                        cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma,
+                        cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma,
+                    ],
+                    [
+                        sin_alpha * cos_beta,
+                        sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma,
+                        sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma,
+                    ],
+                    [-sin_beta, cos_beta * sin_gamma, cos_beta * cos_gamma],
+                ]
+            )
+
+        def __call__(self, t):
+            return self.center + self.transform @ np.array(
+                [
+                    self.radius(t) * np.cos(2 * np.pi * self.ratio(t)),
+                    self.radius(t) * np.sin(2 * np.pi * self.ratio(t)),
+                    0,
+                ]
+            )
+
+        @staticmethod
+        def generate(start_time, start_point):
+            radius = np.random.uniform(0.3, 1)
+            return Trajectory3D.CircularCurve(
+                start_point,
+                lambda t: min(1, (t - start_time) * 2) * radius,
+                np.random.uniform(0, 2 * np.pi, 3),
+                start_time,
+                start_time + np.random.uniform(0.3, 1),
+            )
+
+    class TrigCurve(Curve):
+        def __init__(self, center, radius, orientation, start_time, end_time):
+            super().__init__(start_time, end_time)
+            self.center = center
+            self.radius = radius
+            self.orientation = orientation
+            cos_alpha, sin_alpha = np.cos(orientation[0]), np.sin(orientation[0])
+            cos_beta, sin_beta = np.cos(orientation[1]), np.sin(orientation[1])
+            cos_gamma, sin_gamma = np.cos(orientation[2]), np.sin(orientation[2])
+            self.transform = np.array(
+                [
+                    [
+                        cos_alpha * cos_beta,
+                        cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma,
+                        cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma,
+                    ],
+                    [
+                        sin_alpha * cos_beta,
+                        sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma,
+                        sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma,
+                    ],
+                    [-sin_beta, cos_beta * sin_gamma, cos_beta * cos_gamma],
+                ]
+            )
+
+        def __call__(self, t):
+            return self.center + self.transform @ np.array(
+                [
+                    self.radius(t) * np.cos(2 * np.pi * self.ratio(t)),
+                    self.radius(t) * np.sin(2 * np.pi * self.ratio(t)),
+                    0,
+                ]
+            )
+
+        @staticmethod
+        def generate(start_time, start_point):
+            w1 = np.random.uniform(0.3, 8)
+            w2 = np.random.uniform(0.3, 8)
+            return Trajectory3D.TrigCurve(
+                start_point,
+                lambda t: np.sin(w1 * t) * np.cos(w2 * t),
+                np.random.uniform(0, 2 * np.pi, 3),
+                start_time,
+                start_time + np.random.uniform(0.3, 1),
+            )
+
+    def __init__(self, pattern=Pattern.MIX):
+        super().__init__()
+        self.pattern = pattern
+        self.current_curve = None
+        self.current_point = np.zeros((3,))
+
+    def read(self, t):
+        if not self.current_curve or self.current_curve.finished:
+            self.current_curve = self.generate_curve(t, self.current_point)
+        self.current_point = self.current_curve(t)
+        return self.current_point
+
+    def generate_curve(self, t, current_point):
+        possible = []
+        if self.pattern.value & Trajectory3D.Pattern.LINEAR.value:
+            possible.append(Trajectory3D.LinearCurve)
+        if self.pattern.value & Trajectory3D.Pattern.CIRCULAR.value:
+            possible.append(Trajectory3D.CircularCurve)
+        if self.pattern.value & Trajectory3D.Pattern.TRIG.value:
+            possible.append(Trajectory3D.TrigCurve)
+        return np.random.choice(possible).generate(t, current_point)

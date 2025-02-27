@@ -48,7 +48,7 @@ class DiscreteLowPassFilter(Estimator):
     def __init__(self, alpha=5, dimension=1):
         super().__init__()
         self.alpha = alpha
-        self.y = np.zeros((1, dimension))
+        self.y = np.zeros((dimension,))
 
     def estimate(self, data):
         self.y = self.y * self.alpha + data * (1 - self.alpha)

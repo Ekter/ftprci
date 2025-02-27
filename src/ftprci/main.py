@@ -65,6 +65,10 @@ class RunnerThread:
         self.timer = FastBlockingTimer(
             period=period, frequency=frequency, periodic=periodic, callback=self._run
         )
+        self.thread = None
+
+    def start(self):
+        self.timer.running = True
         self.thread = _thread.start_new_thread(self.timer.run, ())
 
     def _run(self):
@@ -72,6 +76,30 @@ class RunnerThread:
         a = self.initial_args
         for call in self.callback:
             a = [call_(*a) for call_ in call] if isinstance(call, tuple) else [call(*a)]
+
+    def __rshift__(self, right):
+        return self.callback | right
+
+
+class Clock(RunnerThread):
+    def __init__(self, dt=0.01, t_max=10):
+        super().__init__(dt)
+        self.t = 0
+        self.dt = dt
+        self.t_max = t_max
+        self.timer.running = False
+
+    def _run(self):
+        a = [self.t]
+        for call in self.callback:
+            a = [call_(*a) for call_ in call] if isinstance(call, tuple) else [call(*a)]
+        self.t += self.dt
+        if self.t >= self.t_max:
+            self.timer.stop()
+
+    def wait(self):
+        while self.timer.running:
+            pass
 
 
 def _main():
@@ -91,7 +119,7 @@ def _main():
         print(k)
 
     sleep(1)
-    th.callback | f1 | f2 | f2 | f3
+    th >> f1 | f2 | f2 | f3
     print("----------")
     th._run()
 

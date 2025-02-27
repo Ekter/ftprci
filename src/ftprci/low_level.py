@@ -118,7 +118,7 @@ class FastBlockingTimer:
         """
         Run the timer in current thread
         """
-        self.running = True
+        # self.running = True
         loop = 1
         beg_loop = ticks_us()
         while self.running:
@@ -130,7 +130,7 @@ class FastBlockingTimer:
                     max(ticks_diff(beg_loop + loop * self.period_us, end_us) / 1e6, 0)
                 )
             else:
-                duration = ticks_diff(end_us, beg_us)
+                duration = ticks_diff(beg_us, end_us)
                 sleep(max((self.period_us - duration) / 1e6, 0))
 
     def stop(self):
