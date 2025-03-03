@@ -65,12 +65,12 @@ class Sensor(abc.ABC):
             return f"{self.__class__.__name__}({', '.join([f'{key}={value}' for key, value in self.__dict__.items()])})"
 
     @abc.abstractmethod
-    def read(self):
+    def read(self, *args):
         """
         Read and return data from the sensor.
 
         Returns:
-            Data read from the sensor. Can be any type.
+            - Data read from the sensor. Type: RawData.
         """
 
     def __init__(self):
@@ -203,7 +203,7 @@ class LSM6(AccGyro):
             0x04, address=LSM6.Regs.CTRL3_C.value, data=True
         )  # auto increment address
 
-    def read(self):
+    def read(self, *_):
         gyro = self.interface.read(address=LSM6.Regs.OUTX_L_G, max_bytes=6)
         acc = self.interface.read(address=LSM6.Regs.OUTX_L_XL, max_bytes=6)
 
@@ -953,7 +953,7 @@ class LSM9DS1(AccGyroMag):
         )
         # TODO nice print of status & check of values
 
-    def read(self):
+    def read(self, *_):
         gyro = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_G, max_bytes=6)
         acc = self.accgyro.read(address=LSM9DS1.RegsAccGyro.OUT_X_L_XL, max_bytes=6)
 
@@ -978,7 +978,7 @@ class DummyAccGyro(AccGyro):
         super().__init__()
         self.t = 1
 
-    def read(self):
+    def read(self, *_):
         self.t += 1
         return AccGyro.RawData(
             acc=(
@@ -999,11 +999,13 @@ class Trajectory3D(Sensor):
         def __init__(self, xyz=(0, 0, 0)):
             self.xyz = Sensor.OutputTypes.Vector3(*xyz)
 
-    class Pattern(enum.Enum):
+    class Pattern(enum.Flag):
         LINEAR = 0x1
         CIRCULAR = 0x2
         TRIG = 0x4
-        MIX = 0x7
+        STEP = 0x8
+        SPIR = 0x10
+        MIX = 0x1F
 
     class Curve:
         def __init__(self, start_time, end_time):
@@ -1034,7 +1036,7 @@ class Trajectory3D(Sensor):
                 start_point,
                 np.random.normal(size=(3)),
                 start_time,
-                start_time + np.random.uniform(0.3, 1),
+                start_time + np.random.uniform(0.5, 2),
             )
 
     class CircularCurve(Curve):
@@ -1079,7 +1081,7 @@ class Trajectory3D(Sensor):
                 lambda t: min(1, (t - start_time) * 2) * radius,
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(0.3, 1),
+                start_time + np.random.uniform(0.5, 2),
             )
 
     class TrigCurve(Curve):
@@ -1125,14 +1127,76 @@ class Trajectory3D(Sensor):
                 lambda t: np.sin(w1 * t) * np.cos(w2 * t),
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(0.3, 1),
+                start_time + np.random.uniform(0.5, 2),
             )
 
-    def __init__(self, pattern=Pattern.MIX):
+    class StepConstantCurve(Curve):
+        def __init__(self, start_point, start_time, end_time):
+            super().__init__(start_time, end_time)
+            self.start_point = start_point
+
+        def __call__(self, t):
+            if self.ratio(t) >= 0:
+                return self.start_point
+            return -self.start_point
+
+        @staticmethod
+        def generate(start_time, start_point):
+            return Trajectory3D.StepConstantCurve(
+                start_point, start_time, start_time + np.random.uniform(0.5, 2)
+            )
+
+    class SpiralCurve(Curve):
+        def __init__(self, center, radius, orientation, start_time, end_time):
+            super().__init__(start_time, end_time)
+            self.center = center
+            self.radius = radius
+            self.orientation = orientation
+            cos_alpha, sin_alpha = np.cos(orientation[0]), np.sin(orientation[0])
+            cos_beta, sin_beta = np.cos(orientation[1]), np.sin(orientation[1])
+            cos_gamma, sin_gamma = np.cos(orientation[2]), np.sin(orientation[2])
+            self.transform = np.array(
+                [
+                    [
+                        cos_alpha * cos_beta,
+                        cos_alpha * sin_beta * sin_gamma - sin_alpha * cos_gamma,
+                        cos_alpha * sin_beta * cos_gamma + sin_alpha * sin_gamma,
+                    ],
+                    [
+                        sin_alpha * cos_beta,
+                        sin_alpha * sin_beta * sin_gamma + cos_alpha * cos_gamma,
+                        sin_alpha * sin_beta * cos_gamma - cos_alpha * sin_gamma,
+                    ],
+                    [-sin_beta, cos_beta * sin_gamma, cos_beta * cos_gamma],
+                ]
+            )
+
+        def __call__(self, t):
+            return self.center + self.transform @ np.array(
+                [
+                    self.radius(t) * np.cos(2 * np.pi * self.ratio(t)),
+                    self.radius(t) * np.sin(2 * np.pi * self.ratio(t)),
+                    0,
+                ]
+            )
+
+        @staticmethod
+        def generate(start_time, start_point):
+            radius = np.random.uniform(0.3, 1)
+            return Trajectory3D.CircularCurve(
+                start_point,
+                lambda t: (t - start_time) * radius,
+                np.random.uniform(0, 2 * np.pi, 3),
+                start_time,
+                start_time + np.random.uniform(0.5, 2),
+            )
+
+    def __init__(self, pattern=Pattern.MIX, continuous=True):
         super().__init__()
         self.pattern = pattern
         self.current_curve = None
         self.current_point = np.zeros((3,))
+        self.continuous = continuous
 
     def read(self, t):
         if not self.current_curve or self.current_curve.finished:
@@ -1148,4 +1212,10 @@ class Trajectory3D(Sensor):
             possible.append(Trajectory3D.CircularCurve)
         if self.pattern.value & Trajectory3D.Pattern.TRIG.value:
             possible.append(Trajectory3D.TrigCurve)
+        if self.pattern.value & Trajectory3D.Pattern.STEP.value:
+            possible.append(Trajectory3D.StepConstantCurve)
+        if self.pattern.value & Trajectory3D.Pattern.SPIR.value:
+            possible.append(Trajectory3D.SpiralCurve)
+        if not self.continuous:
+            current_point = np.random.uniform(-1, 1, 3)
         return np.random.choice(possible).generate(t, current_point)

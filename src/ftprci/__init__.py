@@ -75,12 +75,16 @@ from .estimator import (
 )
 from .interface import DummyInterface, Interface, SMBusInterface
 from .logger import (
+    ClockedLogger,
+    ClockedMultiPlotLogger3D,
+    ClockedPlotLogger1D,
     DataComparativeLogger,
+    FourrierClockedPlotLogger1D,
     Logger,
-    PlotLogger1D,
     PlotLogger3D,
     ProgressBar,
     TimedLogger,
+    TimedPlotLogger1D,
 )
 from .low_level import FastBlockingTimer, sleep
 from .main import Clock, RunnerThread
