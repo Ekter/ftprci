@@ -7,10 +7,10 @@ if platform.platform().startswith("MicroPython"):
 
     import os
 
-    import machine
-
     if os.uname().sysname == "rp2":
         # only for pico
+        import machine
+
         machine.freq(240000000)  # full speed or nothing
         # doubles the accuracy of the timer approximately
 

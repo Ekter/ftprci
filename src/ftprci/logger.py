@@ -124,9 +124,11 @@ class ClockedPlotLogger1D(ClockedLogger):
 
 
 class FourrierClockedPlotLogger1D(ClockedPlotLogger1D):
-    def __init__(self, clock, fig, update_freq=1, dimension=1):
+    def __init__(self, clock, fig, update_freq=1, dimension=1, log_scale=False):
         super().__init__(clock, fig, update_freq, dimension)
-        # self.ax.set_yscale("log")
+        if log_scale:
+            for ax in self.ax:
+                ax.set_yscale("log")
 
     def log(self, data):
         for i in range(self.dimension):

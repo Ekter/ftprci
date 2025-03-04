@@ -8,6 +8,7 @@ This library is a collection of classes and functions to help with the developme
 of robot controllers in Python. It is designed to be fast and easy to use, with a
 focus on real-time control.
 Works on CPython and MicroPython.
+But the support for MicroPython is currently broken, because of the numpy dependancy.
 
 ## Installation
 
