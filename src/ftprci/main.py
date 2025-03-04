@@ -88,6 +88,7 @@ class Clock(RunnerThread):
         self.dt = dt
         self.t_max = t_max
         self.timer.running = False
+        self.length = round(self.t_max / self.dt) + 1
 
     def _run(self):
         a = [self.t]

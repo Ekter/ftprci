@@ -79,7 +79,7 @@ from .logger import (
     ClockedMultiPlotLogger3D,
     ClockedPlotLogger1D,
     DataComparativeLogger,
-    FourrierClockedPlotLogger1D,
+    FourierClockedPlotLogger1D,
     Logger,
     PlotLogger3D,
     ProgressBar,

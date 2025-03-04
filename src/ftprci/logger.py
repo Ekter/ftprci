@@ -123,7 +123,7 @@ class ClockedPlotLogger1D(ClockedLogger):
         return data
 
 
-class FourrierClockedPlotLogger1D(ClockedPlotLogger1D):
+class FourierClockedPlotLogger1D(ClockedPlotLogger1D):
     def __init__(self, clock, fig, update_freq=1, dimension=1, log_scale=False):
         super().__init__(clock, fig, update_freq, dimension)
         if log_scale:
@@ -265,7 +265,7 @@ class ClockedMultiPlotLogger3D(ClockedLogger):
 class ProgressBar(ClockedLogger):
     def __init__(self, clock: Clock):
         super().__init__(clock)
-        self.pbar = tqdm.tqdm(total=round(clock.t_max / clock.dt) + 1)
+        self.pbar = tqdm.tqdm(total=self.clock.length)
 
     def log(self, data):
         self.pbar.update()
