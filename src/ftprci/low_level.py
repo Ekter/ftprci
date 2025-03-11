@@ -37,37 +37,37 @@ if platform.platform().startswith("MicroPython"):
         while time.ticks_cpu() < end:
             pass
 
-    script_start_time = time.ticks_cpu()
-    time.sleep(0.001)
-    time_now = time.ticks_cpu()
-    elapsed_time = (time_now - script_start_time) / 1000
-    print("[%.4f] time.sleep" % elapsed_time)
+    # script_start_time = time.ticks_cpu()
+    # time.sleep(0.001)
+    # time_now = time.ticks_cpu()
+    # elapsed_time = (time_now - script_start_time) / 1000
+    # print("[%.4f] time.sleep" % elapsed_time)
 
-    script_start_time = time.ticks_cpu()
-    time.sleep_us(int(0.001 * 1e6))
-    time_now = time.ticks_cpu()
-    elapsed_time = (time_now - script_start_time) / 1000
-    print("[%.4f] time.sleep_us" % elapsed_time)
+    # script_start_time = time.ticks_cpu()
+    # time.sleep_us(int(0.001 * 1e6))
+    # time_now = time.ticks_cpu()
+    # elapsed_time = (time_now - script_start_time) / 1000
+    # print("[%.4f] time.sleep_us" % elapsed_time)
 
-    script_start_time = time.ticks_cpu()
-    sleep(0.001)
-    time_now = time.ticks_cpu()
-    elapsed_time = (time_now - script_start_time) / 1000
-    print("[%.4f] sleep" % elapsed_time)
+    # script_start_time = time.ticks_cpu()
+    # sleep(0.001)
+    # time_now = time.ticks_cpu()
+    # elapsed_time = (time_now - script_start_time) / 1000
+    # print("[%.4f] sleep" % elapsed_time)
 
-    script_start_time = time.ticks_cpu()
-    sleep2(0.001)
-    time_now = time.ticks_cpu()
-    elapsed_time = (time_now - script_start_time) / 1000
-    print("[%.4f] sleep lambda" % elapsed_time)
+    # script_start_time = time.ticks_cpu()
+    # sleep2(0.001)
+    # time_now = time.ticks_cpu()
+    # elapsed_time = (time_now - script_start_time) / 1000
+    # print("[%.4f] sleep lambda" % elapsed_time)
 
-    script_start_time = time.ticks_cpu()
-    sleep_perf(0.001)
-    time_now = time.ticks_cpu()
-    elapsed_time = (time_now - script_start_time) / 1000
-    print("[%.4f] sleep_perf" % elapsed_time)
+    # script_start_time = time.ticks_cpu()
+    # sleep_perf(0.001)
+    # time_now = time.ticks_cpu()
+    # elapsed_time = (time_now - script_start_time) / 1000
+    # print("[%.4f] sleep_perf" % elapsed_time)
 
-    print("")
+    # print("")
 
 else:
     PLATFORM = platform.python_implementation()

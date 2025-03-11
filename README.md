@@ -32,7 +32,7 @@ The library is divided into several modules, each with a specific purpose:
   for all controllers.
 - `sensor`: Contains the `Sensor` class, which is an abstract base class for all
   sensors.
-- `logger`: Contains the `Logger` class, which is used for logging. # TODO
+- `logger`: Contains the `Logger` class, which is used for logging.
 - `main`: Contains the `RunnerThread` class, which is used to run the controller
   with precise timings.
 

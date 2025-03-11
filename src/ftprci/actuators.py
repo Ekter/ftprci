@@ -17,8 +17,8 @@ from . import interface
 
 
 class Actuator(abc.ABC):
-    def __init__(self, interface_command: interface.Interface):
-        self.interface: interface.Interface = interface_command
+    def __init__(self, interface_command: interface.Interface | None = None):
+        self.interface: interface.Interface | None = interface_command
 
     @abc.abstractmethod
     def command(self, *command):
@@ -44,7 +44,6 @@ class PololuAstar(Actuator):
         SLAVE_ADDRESS = 20
 
     def __init__(self):
-        _interface = interface.SMBusInterface(PololuAstar.Regs.SLAVE_ADDRESS.value)
         super().__init__(_interface)
 
     def leds(self, red, yellow, green):

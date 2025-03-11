@@ -16,7 +16,7 @@ To install the library, simply run:
 
 $ pip install ftprci
 
-in a virtual environment.
+in a virtual environment if possible, but ftprci shouldn't cause system conflicts.
 
 ## Usage
 
@@ -32,8 +32,8 @@ for all controllers.
 * `sensor`: Contains the `Sensor` class, which is an abstract base class for all
 sensors.
 * `logger`: Contains the `Logger` class, which is used for logging.
-* `main`: Contains the `RunnerThread` class, which is used to run the controller
-with precise timings.
+* `main`: Contains the `Clock` and `RunnerThread` classes, which are used to run
+loops with precise timings.
 
 Here is an example of how to use the library:
 

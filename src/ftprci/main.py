@@ -98,6 +98,6 @@ class Clock(RunnerThread):
         if self.t >= self.t_max:
             self.timer.stop()
 
-    def wait(self):
+    def wait(self):  # will probably be changed to async in the future
         while self.timer.running:
             pass
