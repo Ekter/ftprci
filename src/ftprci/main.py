@@ -101,3 +101,18 @@ class Clock(RunnerThread):
     def wait(self):  # will probably be changed to async in the future
         while self.timer.running:
             pass
+
+    def step(self, force=False):
+        if not self.timer.running or force:
+            a = [self.t]
+            for call in self.callback:
+                a = (
+                    [call_(*a) for call_ in call]
+                    if isinstance(call, tuple)
+                    else [call(*a)]
+                )
+            self.t += self.dt
+        else:
+            raise RuntimeError(
+                "Clock is running, are you sure you want to force step from this thread? (you can pass force=True to force step)"
+            )
