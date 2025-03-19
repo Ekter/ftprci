@@ -7,10 +7,39 @@ They can be either USB, I2C, physical output for compatible systems, or any othe
 """
 
 import abc
+import os
 import time
 
 import pretlog as pl
-import smbus
+
+# Try imports in order of preference
+SMBus = None
+smbus_version = 0
+
+# Try smbus3 (preferred)
+try:
+    from smbus3 import SMBus
+
+    smbus_version = 3
+except ImportError:
+    # Try smbus2
+    try:
+        from smbus2 import SMBus
+
+        smbus_version = 2
+    except ImportError:
+        # Try original smbus as last resort
+        try:
+            from smbus import SMBus
+
+            smbus_version = 1
+        except ImportError:
+            pass
+
+if smbus_version == 0:
+    pl.warn("No smbus implementation found")
+else:
+    pl.info(f"Using smbus{smbus_version}")
 
 
 class Interface(abc.ABC):
@@ -64,7 +93,7 @@ class SMBusInterface(Interface):
     """
 
     def __init__(self, slave_addr) -> None:
-        self.bus = smbus.SMBus(1)
+        self.bus = SMBus(1)
         self.sa = slave_addr
 
     def send_command(

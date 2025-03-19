@@ -1,5 +1,4 @@
 pretlog
 numpy
-# TODO remove smbus
-smbus
 tqdm
+# TODO option-based smbus install
