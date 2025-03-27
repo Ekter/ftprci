@@ -5,6 +5,10 @@ import numpy as np
 from . import sensor
 
 
+Shape = tuple[int, ...]
+"type of shape of number arrays"
+
+
 class Estimator(abc.ABC):
     """
     Abstract base class for estimators.
@@ -45,12 +49,13 @@ class DiscreteLowPassFilter(Estimator):
     Alpha = e^(-dt/wc)
     """
 
-    def __init__(self, alpha=5, size=(1)):
+    def __init__(self, alpha:float=5, shape: Shape=(1)):
         super().__init__()
         self.alpha = alpha
-        self.y = np.zeros(size)
+        self.y = np.zeros(shape)
 
     def estimate(self, data):
+        assert data.shape == self.y.shape
         self.y = self.y * self.alpha + data * (1 - self.alpha)
         return self.y
 

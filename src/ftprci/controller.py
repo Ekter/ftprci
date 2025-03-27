@@ -2,6 +2,7 @@ import abc
 
 # import enum
 import numpy as np
+from typing import Any
 
 
 class DiscreteIntegral:
@@ -95,7 +96,7 @@ class Controller(abc.ABC):
         self.order = order
 
     @abc.abstractmethod
-    def steer(self, state):
+    def steer(self, state: Any) -> Any:
         """
         Steer the controller.
 
