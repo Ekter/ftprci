@@ -7,32 +7,27 @@ They can be either USB, I2C, physical output for compatible systems, or any othe
 """
 
 import abc
-import os
 import time
 
 import pretlog as pl
 
-# Try imports in order of preference
 SMBus = None
 smbus_version = 0
 
-# Try smbus3 (preferred)
 try:
     from smbus3 import SMBus
-
     smbus_version = 3
+
 except ImportError:
-    # Try smbus2
     try:
         from smbus2 import SMBus
-
         smbus_version = 2
+
     except ImportError:
-        # Try original smbus as last resort
         try:
             from smbus import SMBus
-
             smbus_version = 1
+
         except ImportError:
             pass
 

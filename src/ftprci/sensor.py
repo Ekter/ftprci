@@ -22,6 +22,8 @@ import random
 import struct
 
 import numpy as np
+import numpy.typing as npt
+from numpy._typing._array_like import NDArray
 
 from . import interface
 
@@ -1191,21 +1193,30 @@ class Trajectory3D(Sensor):
                 start_time + np.random.uniform(0.5, 2),
             )
 
-    def __init__(self, pattern=Pattern.MIX, continuous=True):
+    def __init__(self, pattern: Pattern=Pattern.MIX, continuous: bool=True):
         super().__init__()
         self.pattern = pattern
         self.current_curve = None
-        self.current_point = np.zeros((3,))
+        self.current_point: npt.NDArray[np.float64] = np.zeros((3,))
         self.continuous = continuous
 
-    def read(self, t):
+    def read(self, t: float) -> npt.NDArray[np.float64]:
         if not self.current_curve or self.current_curve.finished:
             self.current_curve = self.generate_curve(t, self.current_point)
         self.current_point = self.current_curve(t)
         return self.current_point
 
-    def generate_curve(self, t, current_point):
-        possible = []
+    def generate_curve(self, start_time: float, current_point: npt.NDArray[np.float64]):
+        """Generate a random curve based on the pattern.
+
+        Args:
+            start_time (float): time when the trajectory will start. Should be current time.
+            current_point (npt.NDArray[np.float64]): Starting point of the trajectory, only if continuous.
+
+        Returns:
+            Curve: Curve object that will be used to generate the trajectory.
+        """
+        possible: list[Trajectory3D.Curve] = []
         if self.pattern.value & Trajectory3D.Pattern.LINEAR.value:
             possible.append(Trajectory3D.LinearCurve)
         if self.pattern.value & Trajectory3D.Pattern.CIRCULAR.value:
@@ -1218,4 +1229,4 @@ class Trajectory3D(Sensor):
             possible.append(Trajectory3D.SpiralCurve)
         if not self.continuous:
             current_point = np.random.uniform(-1, 1, 3)
-        return np.random.choice(possible).generate(t, current_point)
+        return np.random.choice(possible).generate(start_time, current_point)
