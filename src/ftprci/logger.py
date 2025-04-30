@@ -267,9 +267,9 @@ class ClockedMultiPlotLogger3D(ClockedLogger):
                 times, xs, ys, zs = self.data[i].get_values()
                 self.ax[i].plot(times, xs, label=self.legend)
                 self.ax[i].legend(loc="upper left")
-                self.ax[i + self.dimension].plot(times, ys, legend=self.legend)
+                self.ax[i + self.dimension].plot(times, ys, label=self.legend)
                 self.ax[i + self.dimension].legend(loc="upper left")
-                self.ax[i + 2 * self.dimension].plot(times, zs, legend=self.legend)
+                self.ax[i + 2 * self.dimension].plot(times, zs, label=self.legend)
                 self.ax[i + 2 * self.dimension].legend(loc="upper left")
         return data
 
