@@ -153,39 +153,15 @@ class FourierClockedPlotLogger1D(ClockedPlotLogger1D):
 
 class PlotLogger3D(Logger):
     class Data:
-        def __init__(self):
-            self.x = []
-            self.y = []
-            self.z = []
-            # self.style = []
+        def __init__(self, dimension=3):
+            self.values = [[] for _ in range(dimension)]
 
         def new_value(self, value):
-            self.x.append(value[0])
-            self.y.append(value[1])
-            self.z.append(value[2])
-            # self.style.append(self.styles[0])
+            for series, data in zip(self.values, value):
+                series.append(data)
 
         def get_values(self):
-            return self.x, self.y, self.z
-
-    styles = [
-        "o",
-        "x",
-        "+",
-        "s",
-        "D",
-        "v",
-        "^",
-        "<",
-        ">",
-        "p",
-        "P",
-        "*",
-        "h",
-        "H",
-        "X",
-        "d",
-    ]
+            return self.values
 
     def __init__(self, fig, update_freq=1, dimension=1):
         super().__init__()
@@ -221,8 +197,8 @@ class PlotLogger3D(Logger):
 
 class ClockedMultiPlotLogger3D(ClockedLogger):
     class Data(PlotLogger3D.Data):
-        def __init__(self):
-            super().__init__()
+        def __init__(self, dimension=3):
+            super().__init__(dimension=dimension)
             self.time = []
 
         def new_value(self, value, time_value):
@@ -230,48 +206,58 @@ class ClockedMultiPlotLogger3D(ClockedLogger):
             self.time.append(time_value)
 
         def get_values(self):
-            return self.time, self.x, self.y, self.z
+            return self.time, self.values
 
-    def __init__(self, clock, fig, legend: str="", update_freq=1, dimension=1):
+    def __init__(
+        self,
+        clock,
+        fig,
+        legend: str = "",
+        update_freq=1,
+        plot_num=1,
+        dimension=3,
+        style="o",
+    ):
         super().__init__(clock)
         self.legend = legend
+        self.num_plot = plot_num
         self.dimension = dimension
         self.update_freq = update_freq
+        self.style = style
         if isinstance(fig, Iterable):
             self.ax = fig
         else:
             self.ax = []
-            for i in range(dimension):
-                self.ax.append(fig.add_subplot(3, dimension, i + 1))
-                self.ax.append(fig.add_subplot(3, dimension, i + 1 + dimension))
-                self.ax.append(fig.add_subplot(3, dimension, i + 1 + 2 * dimension))
-        self.i = 0
-        self.data = [self.Data() for _ in range(dimension)]
+            for i in range(plot_num):
+                for d in range(dimension):
+                    self.ax.append(
+                        fig.add_subplot(dimension, plot_num, i + 1 + d * plot_num)
+                    )
+        self.data = [self.Data(dimension) for _ in range(plot_num)]
 
     def log(self, data: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         if (
-            data.shape[0] == 3
+            data.shape[0] == self.dimension
             and len(data.shape) == 1
-            or data.shape[1] == self.dimension
+            or data.shape[1] == self.num_plot
         ):
-            for i in range(self.dimension):
+            for i in range(self.num_plot):
                 self.data[i].new_value(data[:, i], self.clock.t)
-        elif data.shape[0] == self.dimension and data.shape[1] == 3:
-            for i in range(self.dimension):
+        elif data.shape[0] == self.num_plot and data.shape[1] == self.dimension:
+            for i in range(self.num_plot):
                 self.data[i].new_value(data[i, :], self.clock.t)
         else:
             raise ValueError("Data shape is not correct")
-        self.i += 1
-        if self.i % self.update_freq == 0:
-            for i in range(self.dimension):
-                times, xs, ys, zs = self.data[i].get_values()
-                self.ax[i].plot(times, xs, label=self.legend)
-                self.ax[i].legend(loc="upper left")
-                self.ax[i + self.dimension].plot(times, ys, legend=self.legend)
-                self.ax[i + self.dimension].legend(loc="upper left")
-                self.ax[i + 2 * self.dimension].plot(times, zs, legend=self.legend)
-                self.ax[i + 2 * self.dimension].legend(loc="upper left")
         return data
+
+    def plot(self):
+        for i in range(self.num_plot):
+            times, values = self.data[i].get_values()
+            for index, series in enumerate(values):
+                self.ax[i + index * self.num_plot].plot(
+                    times, series, label=self.legend
+                )
+                self.ax[i + index * self.num_plot].legend(loc="upper left")
 
 
 class ProgressBar(ClockedLogger):

@@ -1023,6 +1023,13 @@ class Trajectory3D(Sensor):
         def __bool__(self):
             return True
 
+        @staticmethod
+        def generate(start_time, start_point):
+            raise NotImplementedError("This method should be overridden in subclasses")
+
+        def __call__(self, t):
+            raise NotImplementedError("This method should be overridden in subclasses")
+
     class LinearCurve(Curve):
         def __init__(self, start, end, start_time, end_time):
             super().__init__(start_time, end_time)
@@ -1038,7 +1045,7 @@ class Trajectory3D(Sensor):
                 start_point,
                 np.random.normal(size=(3)),
                 start_time,
-                start_time + np.random.uniform(0.5, 2),
+                start_time + np.random.uniform(1.2, 2),
             )
 
     class CircularCurve(Curve):
@@ -1083,7 +1090,7 @@ class Trajectory3D(Sensor):
                 lambda t: min(1, (t - start_time) * 2) * radius,
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(0.5, 2),
+                start_time + np.random.uniform(1.2, 2),
             )
 
     class TrigCurve(Curve):
@@ -1129,7 +1136,7 @@ class Trajectory3D(Sensor):
                 lambda t: np.sin(w1 * t) * np.cos(w2 * t),
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(0.5, 2),
+                start_time + np.random.uniform(1.2, 2),
             )
 
     class StepConstantCurve(Curve):
@@ -1145,7 +1152,7 @@ class Trajectory3D(Sensor):
         @staticmethod
         def generate(start_time, start_point):
             return Trajectory3D.StepConstantCurve(
-                start_point, start_time, start_time + np.random.uniform(0.5, 2)
+                start_point, start_time, start_time + np.random.uniform(1.2, 2)
             )
 
     class SpiralCurve(Curve):
@@ -1190,10 +1197,10 @@ class Trajectory3D(Sensor):
                 lambda t: (t - start_time) * radius,
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(0.5, 2),
+                start_time + np.random.uniform(1.2, 2),
             )
 
-    def __init__(self, pattern: Pattern=Pattern.MIX, continuous: bool=True):
+    def __init__(self, pattern: Pattern=Pattern.MIX, continuous: float|bool=True):
         super().__init__()
         self.pattern = pattern
         self.current_curve = None
@@ -1227,6 +1234,7 @@ class Trajectory3D(Sensor):
             possible.append(Trajectory3D.StepConstantCurve)
         if self.pattern.value & Trajectory3D.Pattern.SPIR.value:
             possible.append(Trajectory3D.SpiralCurve)
-        if not self.continuous:
-            current_point = np.random.uniform(-1, 1, 3)
+        for i in range(3):
+            if self.continuous-np.random.uniform(0, 1) < 0:
+                current_point[i] = np.random.uniform(-1, 1)
         return np.random.choice(possible).generate(start_time, current_point)
