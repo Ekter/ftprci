@@ -163,6 +163,25 @@ class PlotLogger3D(Logger):
         def get_values(self):
             return self.values
 
+    styles = [
+        "o",
+        "x",
+        "+",
+        "s",
+        "D",
+        "v",
+        "^",
+        "<",
+        ">",
+        "p",
+        "P",
+        "*",
+        "h",
+        "H",
+        "X",
+        "d",
+    ]
+
     def __init__(self, fig, update_freq=1, dimension=1):
         super().__init__()
         self.dimension = dimension
@@ -213,7 +232,6 @@ class ClockedMultiPlotLogger3D(ClockedLogger):
         clock,
         fig,
         legend: str = "",
-        update_freq=1,
         plot_num=1,
         dimension=3,
         style="o",
@@ -222,7 +240,6 @@ class ClockedMultiPlotLogger3D(ClockedLogger):
         self.legend = legend
         self.num_plot = plot_num
         self.dimension = dimension
-        self.update_freq = update_freq
         self.style = style
         if isinstance(fig, Iterable):
             self.ax = fig

@@ -39,7 +39,7 @@ Here is an example of how to use the library:
 
 >>> import ftprci as fci
 >>> sensor = fci.LSM6()
->>> controller = fci.PIDController()
+>>> controller = fci.PIDController(1, 0.1, 0)
 >>> estimator = fci.KalmanFilter()  # not implemented yet
 >>> actuator = fci.DCMotor()        # not implemented yet
 >>> th = fci.RunnerThread()
