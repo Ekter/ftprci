@@ -1001,6 +1001,7 @@ class Trajectory3D(Sensor):
         def __init__(self, xyz=(0, 0, 0)):
             self.xyz = Sensor.OutputTypes.Vector3(*xyz)
 
+
     class Pattern(enum.Flag):
         LINEAR = 0x1
         CIRCULAR = 0x2
@@ -1008,6 +1009,13 @@ class Trajectory3D(Sensor):
         STEP = 0x8
         SPIR = 0x10
         MIX = 0x1F
+
+
+    class Length(enum.Enum):
+        SHORT = [0.3, 0.8]
+        MEDIUM = [0.5, 1.2]
+        LONG = [0.8, 2.0]
+
 
     class Curve:
         def __init__(self, start_time, end_time):
@@ -1024,7 +1032,7 @@ class Trajectory3D(Sensor):
             return True
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             raise NotImplementedError("This method should be overridden in subclasses")
 
         def __call__(self, t):
@@ -1040,12 +1048,12 @@ class Trajectory3D(Sensor):
             return self.start + (self.end - self.start) * self.ratio(t)
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             return Trajectory3D.LinearCurve(
                 start_point,
                 np.random.normal(size=(3)),
                 start_time,
-                start_time + np.random.uniform(1.2, 2),
+                start_time + np.random.uniform(length.value[0], length.value[1]),
             )
 
     class CircularCurve(Curve):
@@ -1083,14 +1091,14 @@ class Trajectory3D(Sensor):
             )
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             radius = np.random.uniform(0.3, 1)
             return Trajectory3D.CircularCurve(
                 start_point,
                 lambda t: min(1, (t - start_time) * 2) * radius,
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(1.2, 2),
+                start_time + np.random.uniform(length.value[0], length.value[1]),
             )
 
     class TrigCurve(Curve):
@@ -1128,7 +1136,7 @@ class Trajectory3D(Sensor):
             )
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             w1 = np.random.uniform(0.3, 8)
             w2 = np.random.uniform(0.3, 8)
             return Trajectory3D.TrigCurve(
@@ -1136,7 +1144,7 @@ class Trajectory3D(Sensor):
                 lambda t: np.sin(w1 * t) * np.cos(w2 * t),
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(1.2, 2),
+                start_time + np.random.uniform(length.value[0], length.value[1]),
             )
 
     class StepConstantCurve(Curve):
@@ -1150,9 +1158,9 @@ class Trajectory3D(Sensor):
             return -self.start_point
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             return Trajectory3D.StepConstantCurve(
-                start_point, start_time, start_time + np.random.uniform(1.2, 2)
+                start_point, start_time, start_time + np.random.uniform(0.5, 2)
             )
 
     class SpiralCurve(Curve):
@@ -1190,19 +1198,20 @@ class Trajectory3D(Sensor):
             )
 
         @staticmethod
-        def generate(start_time, start_point):
+        def generate(start_time, start_point, length:[0.5, 1.2]):
             radius = np.random.uniform(0.3, 1)
             return Trajectory3D.CircularCurve(
                 start_point,
                 lambda t: (t - start_time) * radius,
                 np.random.uniform(0, 2 * np.pi, 3),
                 start_time,
-                start_time + np.random.uniform(1.2, 2),
+                start_time + np.random.uniform(length.value[0], length.value[1]),
             )
 
-    def __init__(self, pattern: Pattern=Pattern.MIX, continuous: float|bool=True):
+    def __init__(self, pattern: Pattern=Pattern.MIX, continuous: float|bool=True, length: Length=Length.MEDIUM):
         super().__init__()
         self.pattern = pattern
+        self.length = length
         self.current_curve = None
         self.current_point: npt.NDArray[np.float64] = np.zeros((3,))
         self.continuous = continuous
@@ -1237,4 +1246,4 @@ class Trajectory3D(Sensor):
         for i in range(3):
             if self.continuous-np.random.uniform(0, 1) < 0:
                 current_point[i] = np.random.uniform(-1, 1)
-        return np.random.choice(possible).generate(start_time, current_point)
+        return np.random.choice(possible).generate(start_time, current_point, self.length)
