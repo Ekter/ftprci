@@ -7,16 +7,20 @@ Fast Time Python Robot Controller Interface
 This library is a collection of classes and functions to help with the development
 of robot controllers in Python. It is designed to be fast and easy to use, with a
 focus on real-time control.
-Works on CPython and MicroPython.
-But the support for MicroPython is currently broken, because of the numpy dependancy.
+It can also simply be used for precise timings loops, for data generation for example.
+Should work on CPython and MicroPython, but support for micropython is broken for now.
 
 ## Installation
 
 To install the library, simply run:
 
-    ```sh
     pip install ftprci
-    ```
+
+in a virtual environment, although ftprci shouldn't conflict with os pakages.
+
+Alternatively, you can clone the repository then:
+
+    pip install -e ./ftprci
 
 ## Usage
 
@@ -33,7 +37,7 @@ The library is divided into several modules, each with a specific purpose:
 - `sensor`: Contains the `Sensor` class, which is an abstract base class for all
   sensors.
 - `logger`: Contains the `Logger` class, which is used for logging.
-- `main`: Contains the `RunnerThread` class, which is used to run the controller
+- `main`: Contains the `RunnerThread` and `Clock` classes, which are used to run the controller
   with precise timings.
 
 Here is an example of how to use the library:
