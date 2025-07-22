@@ -82,7 +82,7 @@ class RunnerThread:
 
 
 class Clock(RunnerThread):
-    def __init__(self, dt=0.01, t_max=10):
+    def __init__(self, dt: float = 0.01, t_max: float = 10):
         super().__init__(dt)
         self.t = 0
         self.dt = dt

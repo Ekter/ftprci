@@ -1,11 +1,13 @@
 import abc
+import typing
 
 # import enum
 import numpy as np
+import numpy.typing as npt
 from typing import Any
 
 
-class DiscreteIntegral:
+class DiscreteIntegral: # TODO inheritance instead of member
     class EulerF:
         """
         Discretize using Euler Forward method.
@@ -78,25 +80,34 @@ class DiscreteDifferential:
     def __call__(self, new):
         ret = new - self.previous_val
         self.previous_val = new
-        return ret
+        return ret # TODO * dt
 
 
 class Controller(abc.ABC):
-    def __init__(self) -> None:
-        self.order = 0
+    class StateType(np.ndarray):
+        """
+        Type for the state of the controller.
+        """
 
-    def set_order(self, order):
+    class OutputType(np.ndarray):
+        """
+        Type for the output of the controller.
+        """
+
+    def __init__(self) -> None:
+        self.order: Controller.StateType = 0
+
+    def set_order(self, order: StateType) -> None:
         """
         Set the order for the controller.
 
         Parameters:
             * order: Order to set.
-                State.
         """
         self.order = order
 
     @abc.abstractmethod
-    def steer(self, state: Any) -> Any:
+    def steer(self, state: StateType) -> OutputType:
         """
         Steer the controller.
 
@@ -110,16 +121,16 @@ class Controller(abc.ABC):
         """
         return  # for ruff-B027
 
-    def __call__(self, state):
+    def __call__(self, state: StateType) -> OutputType:
         return self.steer(state)
 
 
 class PIDController(Controller):
-    def __init__(self, p, i, d, integrator: DiscreteIntegral = None):
+    def __init__(self, p: float, i: float, d: float, integrator: DiscreteIntegral = None):
         self.order = 0
-        self.p = p
-        self.i = i
-        self.d = d
+        self.p: float = p
+        self.i: float = i
+        self.d: float = d
         if integrator is None:
             self.integrator = DiscreteIntegral.Tustin()
         else:
